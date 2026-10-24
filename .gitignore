@@ -1,0 +1,55 @@
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.json
+
+# Environments, interpreter/build caches, and dependencies
+*.pyc
+*.pyo
+__pycache__/
+.venv/
+venv/
+node_modules/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Local models, learned state, user events, and runtime databases
+weights/backbone/
+weights/**/*.safetensors
+weights/manifest.sha256
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+data/anchor_eval.jsonl
+data/telemetry.jsonl
+*.log
+
+# Demo intermediates and binaries; the final video ships as a Release asset
+tmp/
+temp/
+artifacts/
+playwright-report/
+test-results/
+seg*.mp3
+*.webm
+harness2_demo_60s.mp4
+
+# Local tooling and editor state
+.ignore
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

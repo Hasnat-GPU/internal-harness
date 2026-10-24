@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Harness² Companion — Simple Visual Guide & Control Center (Internal Harness v2.0)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Smooth theme & state transitions */
+    body, .theme-card, .theme-subcard, .theme-pill {
+      transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    /* Active Station / Room Highlight Animations */
+    @keyframes gentlePulseBlue {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.25), 0 10px 25px -5px rgba(37, 99, 235, 0.2); }
+      50% { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.18), 0 12px 30px -4px rgba(37, 99, 235, 0.35); }
+    }
+    @keyframes gentlePulseEmerald {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.28), 0 10px 25px -5px rgba(16, 185, 129, 0.22); }
+      50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.2), 0 12px 30px -4px rgba(16, 185, 129, 0.38); }
+    }
+    @keyframes gentlePulseAmber {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.28), 0 10px 25px -5px rgba(245, 158, 11, 0.22); }
+      50% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.2), 0 12px 30px -4px rgba(245, 158, 11, 0.38); }
+    }
+    @keyframes gentlePulseRose {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.3), 0 10px 25px -5px rgba(244, 63, 94, 0.25); }
+      50% { box-shadow: 0 0 0 6px rgba(244, 63, 94, 0.22), 0 12px 30px -4px rgba(244, 63, 94, 0.42); }
+    }
+    @keyframes gentlePulsePurple {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.28), 0 10px 25px -5px rgba(147, 51, 234, 0.22); }
+      50% { box-shadow: 0 0 0 6px rgba(147, 51, 234, 0.2), 0 12px 30px -4px rgba(147, 51, 234, 0.38); }
+    }
+
+    .spotlight-blue {
+      border-color: #2563eb !important;
+      border-width: 2px !important;
+      animation: gentlePulseBlue 1.6s infinite;
+    }
+    .spotlight-emerald {
+      border-color: #10b981 !important;
+      border-width: 2px !important;
+      animation: gentlePulseEmerald 1.6s infinite;
+    }
+    .spotlight-amber {
+      border-color: #f59e0b !important;
+      border-width: 2px !important;
+      animation: gentlePulseAmber 1.6s infinite;
+    }
+    .spotlight-rose {
+      border-color: #f43f5e !important;
+      border-width: 2px !important;
+      animation: gentlePulseRose 1.6s infinite;
+    }
+    .spotlight-purple {
+      border-color: #9333ea !important;
+      border-width: 2px !important;
+      animation: gentlePulsePurple 1.6s infinite;
+    }
+
+    .selected-card-ring {
+      outline: 3px solid #3b82f6;
+      outline-offset: 2px;
+    }
+
+    /* Technical Spec Drawer Visibility */
+    body:not(.show-tech-specs) .tech-only {
+      display: none !important;
+    }
+
+    /* Friendly Range Sliders */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 8px;
+      border-radius: 999px;
+      background: #cbd5e1;
+    }
+    .dark input[type=range]::-webkit-slider-runnable-track {
+      background: #334155;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #2563eb;
+      margin-top: -5px;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- ===================================================================== -->
+  <!-- 1. TOP REASSURANCE HEADER BAR                                         -->
+  <!-- ===================================================================== -->
+  <header class="bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+      
+      <!-- Brand Title & Friendly Subtitle -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm shrink-0">
+          H²
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="font-bold text-base sm:text-lg text-slate-900 dark:text-white tracking-tight">
+              Harness² Visual Control Center
+            </h1>
+            <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+              Your Private, Self-Improving AI Brain
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            Click any story or room below to see how your AI learns from you without slowing down your laptop.
+          </p>
+        </div>
+      </div>
+
+      <!-- Status Reassurance Pills & Global View Toggles -->
+      <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-start lg:justify-end">
+        
+        <!-- Laptop Health & Silence Pill (SOL-THERMAL) -->
+        <div id="header-laptop-pill" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 text-xs font-medium text-emerald-800 dark:text-emerald-200" title="SOL-THERMAL: Capped at 4 CPU threads on your Intel i9-13900H so fans stay quiet">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" id="header-laptop-dot"></span>
+          <span id="header-laptop-text">Laptop Cool &amp; Silent • 1.2 GB / 32 GB RAM • 0% Idle CPU</span>
+          <span class="tech-only font-mono text-[10px] text-emerald-600 dark:text-emerald-400">[SOL-THERMAL]</span>
+        </div>
+
+        <!-- Security Shield Pill (SEC-01 to SEC-04) -->
+        <button onclick="inspectStation('SEC-01')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 border border-sky-200 dark:border-sky-800/80 text-xs font-medium text-sky-800 dark:text-sky-200 transition">
+          <span>🛡️</span>
+          <span id="header-sec-text">All 4 Security Shields Active</span>
+          <span class="tech-only font-mono text-[10px] text-sky-600 dark:text-sky-400">[SEC-01..04]</span>
+        </button>
+
+        <!-- Global Toggle: Plain-English vs Technical Blueprint Labels -->
+        <button onclick="toggleTechMode()" id="tech-toggle-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition">
+          <span id="tech-toggle-icon">👁️</span>
+          <span id="tech-toggle-label">View: Simple Human Guide</span>
+        </button>
+
+        <!-- Theme Toggle: Daylight Studio vs Dark Slate -->
+        <button onclick="toggleTheme()" id="theme-toggle-btn" class="px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 transition" title="Switch between Daylight Studio and Dark Slate themes">
+          <span id="theme-toggle-label">🌙 Dark Mode</span>
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- MAIN CONTAINER                                                        -->
+  <!-- ===================================================================== -->
+  <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6 flex-1">
+
+    <!-- =================================================================== -->
+    <!-- 2. INTERACTIVE GUIDED STORY BAR (5 EVERYDAY SCENARIOS + PLAYER)     -->
+    <!-- =================================================================== -->
+    <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+            Interactive Guided Walkthrough
+          </span>
+          <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+            Pick an Everyday Situation to Watch How Your AI Brain Works Step-by-Step
+          </h2>
+        </div>
+        <span class="text-xs text-slate-500 dark:text-slate-400">
+          You can play automatically or click <strong>Next Step ▶</strong> at your own pace
+        </span>
+      </div>
+
+      <!-- 5 Story Scenario Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 mb-4">
+        
+        <button onclick="selectStory('story_work')" id="story-btn-story_work" class="text-left p-3 rounded-xl border-2 border-blue-600 bg-blue-50/70 dark:bg-blue-950/40 transition flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <span class="text-xs font-bold text-blue-700 dark:text-blue-300">1. Ask AI to Do a Task</span>
+              <span class="text-sm">💼</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">
+              Watch your local brain attach a custom "Rule Cheat-Sheet" to guide the Cloud AI and grade its draft.
+            </p>
+          </div>
+          <span class="tech-only font-mono text-[10px] text-blue-600 dark:text-blue-400 mt-2 block">POST /v1/infer (Mode B + T08)</span>
+        </button>
+
+        <button onclick="selectStory('story_learn')" id="story-btn-story_learn" class="text-left p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-emerald-500 bg-slate-50/60 dark:bg-slate-800/40 transition flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">2. Teach AI a New Rule</span>
+              <span class="text-sm">⚡</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">
+              Correct the AI once and watch it update its local scratchpad memory in 0.08 seconds.
+            </p>
+          </div>
+          <span class="tech-only font-mono text-[10px] text-emerald-600 dark:text-emerald-400 mt-2 block">POST /v1/observe (M2 &rarr; M3 LoRA)</span>
+        </button>
+
+        <button onclick="selectStory('story_crash')" id="story-btn-story_crash" class="text-left p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-amber-500 bg-slate-50/60 dark:bg-slate-800/40 transition flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <span class="text-xs font-bold text-amber-700 dark:text-amber-300">3. AI Tool Crashes</span>
+              <span class="text-sm">🚧</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">
+              See how a broken tool error is safely quarantined so your AI never memorizes bad habits.
+            </p>
+          </div>
+          <span class="tech-only font-mono text-[10px] text-amber-600 dark:text-amber-400 mt-2 block">SOL-OUTCOME Quarantine</span>
+        </button>
+
+        <button onclick="selectStory('story_unlearn')" id="story-btn-story_unlearn" class="text-left p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-purple-500 bg-slate-50/60 dark:bg-slate-800/40 transition flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <span class="text-xs font-bold text-purple-700 dark:text-purple-300">4. Change an Old Rule</span>
+              <span class="text-sm">🔄</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">
+              Teach a new rule that contradicts an old habit, and watch the outdated rule automatically retire.
+            </p>
+          </div>
+          <span class="tech-only font-mono text-[10px] text-purple-600 dark:text-purple-400 mt-2 block">SOL-UNLEARN Deprecation</span>
+        </button>
+
+        <button onclick="selectStory('story_security')" id="story-btn-story_security" class="text-left p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-rose-500 bg-slate-50/60 dark:bg-slate-800/40 transition flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <span class="text-xs font-bold text-rose-700 dark:text-rose-300">5. Block Password &amp; Hack</span>
+              <span class="text-sm">🛡️</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">
+              Watch the border shield erase a leaked password (`sk-...`) and stop an outside web hack cold.
+            </p>
+          </div>
+          <span class="tech-only font-mono text-[10px] text-rose-600 dark:text-rose-400 mt-2 block">SEC-01 Scrubber + SEC-02 Firewall</span>
+        </button>
+
+      </div>
+
+      <!-- Live Story Narrator Banner & Step-by-Step Controls -->
+      <div class="bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700 rounded-xl p-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        
+        <div class="space-y-1 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="narrator-step-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-600 text-white">
+              Step 1 of 4
+            </span>
+            <h3 id="narrator-headline" class="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+              You ask your AI to handle a task in your Workspace
+            </h3>
+          </div>
+          <p id="narrator-body" class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            You start in Station 1 (Harness²). Instead of typing out 50 old rules yourself, your workspace asks your private local AI brain for help first.
+          </p>
+          <p id="narrator-tech-note" class="tech-only font-mono text-xs text-blue-600 dark:text-blue-400 pt-0.5">
+            [Tech Spec]: Harness² dispatches POST /v1/infer with domain_tag="prompt_refinement" to 127.0.0.1:8420.
+          </p>
+        </div>
+
+        <!-- Step Player Buttons -->
+        <div class="flex flex-wrap items-center gap-2 shrink-0 w-full lg:w-auto justify-end">
+          <button onclick="prevStoryStep()" id="btn-prev-step" class="px-3 py-2 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 text-xs font-semibold text-slate-700 dark:text-slate-200 transition disabled:opacity-40">
+            ◀ Previous Step
+          </button>
+          <button onclick="toggleAutoPlay()" id="btn-autoplay" class="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow-sm transition">
+            ▶ Auto-Play Story
+          </button>
+          <button onclick="nextStoryStep()" id="btn-next-step" class="px-3.5 py-2 rounded-lg bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 text-xs font-semibold text-white dark:text-slate-900 transition">
+            Next Step ▶
+          </button>
+          <button onclick="resetStory()" class="px-2.5 py-2 rounded-lg bg-transparent hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-500 dark:text-slate-400 transition">
+            Reset
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 3. MAIN VISUAL MAP (THE 4 CLEAR STATIONS) + PLAIN-ENGLISH INSPECTOR -->
+    <!-- =================================================================== -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- LEFT 8 COLUMNS: THE 4 STATIONS JOURNEY MAP -->
+      <div class="lg:col-span-8 space-y-3">
+
+        <!-- --------------------------------------------------------------- -->
+        <!-- STATION 1: TIER 1 — YOUR WORKSPACE (HARNESS²)                   -->
+        <!-- --------------------------------------------------------------- -->
+        <div id="station-TIER-1" onclick="inspectStation('TIER-1')" class="theme-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 cursor-pointer hover:border-blue-400 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2.5">
+              <span class="px-2.5 py-1 rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 font-bold text-xs">
+                Station 1 • Your Workspace
+              </span>
+              <h3 class="font-bold text-base text-slate-900 dark:text-white">
+                Harness² Self-Improving Manager
+              </h3>
+            </div>
+            <span class="tech-only font-mono text-xs text-slate-500 dark:text-slate-400">Tier 1 • src/bridge/harness2_client.py</span>
+          </div>
+
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-3">
+            <strong>What happens here:</strong> This is where your daily tasks, prompt improvements, tool fixes, and helper agents live. Choose what kind of skill your AI is working on right now:
+          </p>
+
+          <!-- 4 Friendly Skill Category Pills -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" onclick="event.stopPropagation()">
+            <button onclick="selectSkillDomain('prompt_refinement')" id="skill-pill-prompt_refinement" class="p-2 rounded-xl border-2 border-blue-600 bg-blue-50/80 dark:bg-blue-950/60 text-left transition">
+              <div class="text-xs font-bold text-blue-800 dark:text-blue-200">✍️ Writing Prompts</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">Clearer AI instructions</div>
+              <div class="tech-only font-mono text-[10px] text-blue-600 dark:text-blue-400 mt-0.5">prompt_refinement</div>
+            </button>
+
+            <button onclick="selectSkillDomain('tool_synthesis')" id="skill-pill-tool_synthesis" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-400 bg-slate-50 dark:bg-slate-800/50 text-left transition">
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-200">🛠️ Building Tools</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">Safer app &amp; database actions</div>
+              <div class="tech-only font-mono text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5">tool_synthesis</div>
+            </button>
+
+            <button onclick="selectSkillDomain('memory_policy')" id="skill-pill-memory_policy" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-400 bg-slate-50 dark:bg-slate-800/50 text-left transition">
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-200">🗂️ Organizing Memory</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">What to keep vs. forget</div>
+              <div class="tech-only font-mono text-[10px] text-amber-600 dark:text-amber-400 mt-0.5">memory_policy</div>
+            </button>
+
+            <button onclick="selectSkillDomain('subagent_routing')" id="skill-pill-subagent_routing" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-400 bg-slate-50 dark:bg-slate-800/50 text-left transition">
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-200">🤝 Helper Agents</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">Assigning the right specialist</div>
+              <div class="tech-only font-mono text-[10px] text-purple-600 dark:text-purple-400 mt-0.5">subagent_routing</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Visual Connector 1 -> 2 -->
+        <div class="flex items-center justify-center gap-2 text-xs font-medium text-slate-400 dark:text-slate-500 py-0.5">
+          <span>⬇️ Passes through your private laptop security checkpoint ⬇️</span>
+        </div>
+
+        <!-- --------------------------------------------------------------- -->
+        <!-- STATION 2: THE BORDER CHECKPOINT — 4-LAYER SECURITY SHIELD      -->
+        <!-- --------------------------------------------------------------- -->
+        <div id="station-SEC-GATE" class="theme-card bg-white dark:bg-slate-900 border-l-4 border-l-emerald-500 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2.5">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
+                Station 2 • The Border Checkpoint
+              </span>
+              <h3 class="font-bold text-base text-slate-900 dark:text-white">
+                4-Layer Security &amp; Privacy Shield
+              </h3>
+            </div>
+            <span id="sec-station-badge" class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+              ✓ All 4 Shields Protecting Your Brain
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            
+            <!-- Shield 1: SEC-01 -->
+            <div id="station-SEC-01" onclick="inspectStation('SEC-01')" class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 bg-slate-50/70 dark:bg-slate-800/50 cursor-pointer transition">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-bold text-slate-900 dark:text-white">1. Secret Scrubber</span>
+                <span id="badge-sec01-count" class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300">4 Erased</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">
+                Automatically erases passwords, API keys (`sk-...`), and emails before your AI can memorize them.
+              </p>
+              <div class="tech-only font-mono text-[10px] text-slate-500 dark:text-slate-400 mt-1.5 pt-1 border-t border-slate-200 dark:border-slate-700">
+                SEC-01 • src/security/scrubber.py
+              </div>
+            </div>
+
+            <!-- Shield 2: SEC-02 -->
+            <div id="station-SEC-02" onclick="inspectStation('SEC-02')" class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 bg-slate-50/70 dark:bg-slate-800/50 cursor-pointer transition">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-bold text-slate-900 dark:text-white">2. Hack Firewall</span>
+                <span id="badge-sec02-count" class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">1 Blocked</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">
+                Blocks untrusted outside websites from sneaking malicious instructions into your AI's memory.
+              </p>
+              <div class="tech-only font-mono text-[10px] text-slate-500 dark:text-slate-400 mt-1.5 pt-1 border-t border-slate-200 dark:border-slate-700">
+                SEC-02 • src/security/firewall.py
+              </div>
+            </div>
+
+            <!-- Shield 3: SEC-03 -->
+            <div id="station-SEC-03" onclick="inspectStation('SEC-03')" class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 bg-slate-50/70 dark:bg-slate-800/50 cursor-pointer transition">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-bold text-slate-900 dark:text-white">3. Tamper-Proof Lock</span>
+                <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">Verified</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">
+                Checks digital fingerprints on all brain files so corrupted or tampered files never load.
+              </p>
+              <div class="tech-only font-mono text-[10px] text-slate-500 dark:text-slate-400 mt-1.5 pt-1 border-t border-slate-200 dark:border-slate-700">
+                SEC-03 • SafeTensors SHA-256
+              </div>
+            </div>
+
+            <!-- Shield 4: SEC-04 -->
+            <div id="station-SEC-04" onclick="inspectStation('SEC-04')" class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 bg-slate-50/70 dark:bg-slate-800/50 cursor-pointer transition">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-bold text-slate-900 dark:text-white">4. Laptop-Only Door</span>
+                <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300">Private</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">
+                Locked strictly to your own laptop with a private passkey—invisible to the public internet.
+              </p>
+              <div class="tech-only font-mono text-[10px] text-slate-500 dark:text-slate-400 mt-1.5 pt-1 border-t border-slate-200 dark:border-slate-700">
+                SEC-04 • 127.0.0.1:8420 Loopback
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Visual Connector 2 -> 3 -->
+        <div class="flex items-center justify-center gap-2 text-xs font-medium text-slate-400 dark:text-slate-500 py-0.5">
+          <span>⬇️ Safe, clean information enters your private local brain ⬇️</span>
+        </div>
+
+        <!-- --------------------------------------------------------------- -->
+        <!-- STATION 3: TIER 2 — YOUR PRIVATE LOCAL AI BRAIN (6 ROOMS)       -->
+        <!-- --------------------------------------------------------------- -->
+        <div class="bg-blue-50/50 dark:bg-slate-900/90 border-2 border-blue-500/80 dark:border-blue-500/70 rounded-2xl p-4 sm:p-5 shadow-md">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2.5 border-b border-blue-200/80 dark:border-slate-800">
+            <div class="flex items-center gap-2.5">
+              <span class="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-bold text-xs shadow-sm">
+                Station 3 • Your Private Local AI Brain
+              </span>
+              <h3 class="font-bold text-base text-slate-900 dark:text-white">
+                The Internal Harness (Lives 100% on Your Laptop)
+              </h3>
+            </div>
+            <span class="text-xs font-medium text-blue-800 dark:text-blue-300 bg-blue-100/80 dark:bg-blue-950 px-2.5 py-1 rounded-lg">
+              Compact Qwen3.5 Edge Brain • Takes only 1.2 GB of your 32 GB RAM
+            </span>
+          </div>
+
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-3.5">
+            Think of this as a <strong>6-room workshop inside your laptop</strong>. Click any room below to see how it turns your everyday feedback into permanent intuition:
+          </p>
+
+          <!-- 6 Rooms Grid (M1 to M6) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            
+            <!-- Room M1 -->
+            <div id="station-M1" onclick="inspectStation('M1')" class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition shadow-sm">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">📬 Room 1: The Mailroom &amp; Rule Checker</span>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300">Step 1</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                Organizes incoming messages and checks if a new lesson replaces an older rule you taught it earlier.
+              </p>
+              <div class="tech-only font-mono text-[10px] text-slate-500 dark:text-slate-400 mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 flex justify-between">
+                <span>M1: mod_ingest (normalizer.py)</span>
+                <span>SOL-UNLEARN Check</span>
+              </div>
+            </div>
+
+            <!-- Room M2 -->
+            <div id="station-M2" onclick="inspectStation('M2')" class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition shadow-sm">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">🎯 Room 2: Surprise Meter &amp; Mistake Filter</span>
+                <span id="room-m2-pill" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">Surprise: Low (1.12)</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                Asks: <em>"Is this brand new to me?"</em> Only opens the learning gate for verified fixes and quarantines raw tool crashes.
+              </p>
+              <div class="tech-only font-mono text-[10px] text-slate-500 dark:text-slate-400 mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 flex justify-between">
+                <span>M2: mod_surprise ($S_t \ge 1.85$)</span>
+                <span>SOL-OUTCOME Filter</span>
+              </div>
+            </div>
+
+            <!-- Room M3 -->
+            <div id="station-M3" onclick="inspectStation('M3')" class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition shadow-sm">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">📝 Room 3: Fast Scratchpad Memory</span>
+                <span id="room-m3-pill" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">0.08 sec Update</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                Instantly jots down new daily lessons into a tiny 3.2 MB "sticky-note" brain file so the AI adapts right away.
+              </p>
+              <div class="tech-only font-mono text-[10px] text-slate-500 dark:text-slate-400 mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 flex justify-between">
+                <span>M3: fast_state.safetensors</span>
+                <span>Top-8-Layer Rank-8 LoRA</span>
+              </div>
+            </div>
+
+            <!-- Room M4 -->
+            <div id="station-M4" onclick="inspectStation('M4')" class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition shadow-sm">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">📚 Room 4: Golden Rulebook &amp; Skill Mixer</span>
+                <span id="room-m4-pill" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300">18 Golden Rules</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                Keeps your best rules safe in a local notebook and blends your 4 skill cartridges together for the current task.
+              </p>
+              <div class="tech-only font-mono text-[10px] text-slate-500 dark:text-slate-400 mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 flex justify-between">
+                <span>M4: episodic_buffer.db</span>
+                <span>$\Delta W = \sum w_k \Delta W_k$</span>
+              </div>
+            </div>
+
+            <!-- Room M5 -->
+            <div id="station-M5" onclick="inspectStation('M5')" class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition shadow-sm">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">🌙 Room 5: Deep Memory Consolidation</span>
+                <span id="room-m5-pill" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300">99.1% Test Pass</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                Every 100 lessons, safely merges your daily scratchpad into permanent memory after verifying zero old rules were forgotten.
+              </p>
+              <div class="tech-only font-mono text-[10px] text-slate-500 dark:text-slate-400 mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 flex justify-between">
+                <span>M5: long_term_state.safetensors</span>
+                <span>KL Tether $\lambda=0.4$</span>
+              </div>
+            </div>
+
+            <!-- Room M6 -->
+            <div id="station-M6" onclick="inspectStation('M6')" class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition shadow-sm">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">🎓 Room 6: Cloud Translator &amp; Quality Grader</span>
+                <span id="room-m6-pill" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300">Grader Active</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                Writes a compact 150-word "Rule Cheat-Sheet" for the Cloud AI and double-checks its answer before you ever see it.
+              </p>
+              <div class="tech-only font-mono text-[10px] text-slate-500 dark:text-slate-400 mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 flex justify-between">
+                <span>M6: closed_api_bridge.py (T07/T08)</span>
+                <span>Critic Gate $S_t \le 1.60$</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Visual Connector 3 -> 4 -->
+        <div class="flex items-center justify-center gap-2 text-xs font-medium text-slate-400 dark:text-slate-500 py-0.5">
+          <span id="connector-3-4-text">⬇️ Sends compact 150-word Rule Cheat-Sheet • Grades reply on return ⬆️</span>
+        </div>
+
+        <!-- --------------------------------------------------------------- -->
+        <!-- STATION 4: TIER 3 — THE BIG CLOUD AI (CLAUDE / GPT / GEMINI)    -->
+        <!-- --------------------------------------------------------------- -->
+        <div id="station-TIER-3" onclick="inspectStation('TIER-3')" class="theme-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 cursor-pointer hover:border-purple-400 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2.5">
+              <span class="px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300 font-bold text-xs">
+                Station 4 • The Big Cloud Thinker
+              </span>
+              <h3 class="font-bold text-base text-slate-900 dark:text-white">
+                Cloud AI Engine (Claude / GPT / Gemini)
+              </h3>
+            </div>
+
+            <!-- Connection Mode Switcher -->
+            <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700" onclick="event.stopPropagation()">
+              <button onclick="setBridgeMode('MODE_B')" id="mode-btn-MODE_B" class="text-xs font-semibold px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm transition">
+                Current: Cloud Cheat-Sheet (Mode B)
+              </button>
+              <button onclick="setBridgeMode('MODE_A')" id="mode-btn-MODE_A" class="text-xs font-medium px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+                Future: Direct Brain Link (Mode A)
+              </button>
+            </div>
+          </div>
+
+          <p id="tier3-plain-desc" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-2">
+            <strong>What happens here:</strong> Even though the big Cloud AI is frozen and doesn't know your personal habits, it reads the 150-word <strong>Rule Cheat-Sheet</strong> prepared by Room 6 on your laptop. Even if you switch from Claude to ChatGPT or Gemini tomorrow, <strong>your local brain keeps 85%+ of your learned rules intact!</strong>
+          </p>
+          <div class="tech-only font-mono text-xs text-purple-600 dark:text-purple-400">
+            [Tech Spec]: Tier 3 Target LLM • Zero Prompt-Token Inflation (capped at &le;150 tokens via Harness2PolicyEnvelope).
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- RIGHT 4 COLUMNS: PLAIN-ENGLISH INSPECTOR + HANDS-ON SANDBOX       -->
+      <!-- ================================================================= -->
+      <div class="lg:col-span-4 space-y-5 sticky top-20">
+
+        <!-- PLAIN-ENGLISH + EXPLICIT SPEC INSPECTOR CARD -->
+        <div class="bg-white dark:bg-slate-900 border-2 border-blue-500/80 dark:border-blue-500/70 rounded-2xl p-4 sm:p-5 shadow-md">
+          <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-200 dark:border-slate-800">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 block">
+                🔍 Close-Up Inspector (Click Any Card)
+              </span>
+              <h3 id="insp-title" class="font-bold text-base text-slate-900 dark:text-white mt-0.5">
+                🎯 Room 2: Surprise Meter &amp; Mistake Filter
+              </h3>
+            </div>
+            <span id="insp-badge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 shrink-0">
+              Room M2
+            </span>
+          </div>
+
+          <!-- Plain-English Explanation -->
+          <div class="space-y-3 text-xs sm:text-sm">
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800">
+              <div class="font-bold text-slate-900 dark:text-white mb-1">💡 In Plain English:</div>
+              <p id="insp-plain" class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                Just like you don't study things you already know by heart, this room measures whether an event is surprising or new. If a tool crashes with an error, this room quarantines the crash so your AI never memorizes mistakes!
+              </p>
+            </div>
+
+            <div class="bg-blue-50/60 dark:bg-blue-950/30 p-3 rounded-xl border border-blue-200/60 dark:border-blue-900/50">
+              <div class="font-bold text-blue-900 dark:text-blue-200 mb-1">🌟 Everyday Metaphor:</div>
+              <p id="insp-metaphor" class="text-blue-800 dark:text-blue-300 leading-relaxed">
+                Like a smart teacher who only writes a new study flashcard when you get a question wrong—and throws away crumpled scratch paper when a pen breaks.
+              </p>
+            </div>
+
+            <!-- Expandable / Toggleable Exact Engineering Spec Drawer -->
+            <div class="pt-1">
+              <button onclick="toggleInspectorTechDrawer()" class="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition">
+                <span>🔧 Exact Engineering Blueprint Spec (v2.0)</span>
+                <span id="drawer-chevron">▼ Show</span>
+              </button>
+
+              <div id="insp-tech-drawer" class="hidden mt-2 bg-slate-900 text-slate-100 rounded-xl p-3 font-mono text-[11px] space-y-2 border border-slate-700">
+                <div class="flex justify-between border-b border-slate-800 pb-1">
+                  <span class="text-slate-400">Code File:</span>
+                  <span id="insp-file" class="text-amber-300">src/core/surprise_gate.py</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-800 pb-1">
+                  <span class="text-slate-400">Laptop Speed:</span>
+                  <span id="insp-speed" class="text-emerald-400">~28 ms INT8 pass (4 threads)</span>
+                </div>
+                <div>
+                  <span class="text-slate-400 block mb-0.5">Formula / Contract:</span>
+                  <div id="insp-formula" class="text-purple-300 bg-slate-950 p-1.5 rounded border border-slate-800">
+                    Gate OPEN iff (VERIFIED_SUCCESS and S_t &ge; 1.85) or is_human_correction == 1
+                  </div>
+                </div>
+                <div>
+                  <span class="text-slate-400 block mb-0.5">Live Data Snapshot:</span>
+                  <pre id="insp-json" class="text-cyan-300 bg-slate-950 p-2 rounded border border-slate-800 overflow-x-auto max-h-36">{
+  "module_id": "M2 (mod_surprise)",
+  "surprise_score_St": 1.12,
+  "threshold_tau": 1.85,
+  "outcome_status": "VERIFIED_SUCCESS",
+  "gate_decision": "CLOSED (Already Known)"
+}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL A: INTERACTIVE SANDBOX — "TRY TEACHING YOUR AI A RULE" -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              Hands-On Sandbox
+            </span>
+            <span class="text-xs text-slate-400">Zero coding required</span>
+          </div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white mb-1">
+            ✍️ Try Teaching Your AI a Rule Right Now
+          </h3>
+          <p class="text-xs text-slate-600 dark:text-slate-300 mb-3">
+            Type any rule below—or click a quick example—to watch the Security Scrubber and Fast Scratchpad Memory handle it live:
+          </p>
+
+          <!-- Quick Preset Chips -->
+          <div class="flex flex-wrap gap-1.5 mb-3">
+            <button onclick="fillSandboxPreset('Always include a 3-bullet summary table at the top of client reports.', 'prompt_refinement')" class="text-[11px] bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 transition">
+              + "Include a 3-bullet summary table..."
+            </button>
+            <button onclick="fillSandboxPreset('Use my secret key sk-live-99887766554433221100 for billing API calls.', 'tool_synthesis')" class="text-[11px] bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 text-rose-700 dark:text-rose-300 px-2.5 py-1 rounded-lg border border-rose-200 dark:border-rose-800 transition">
+              + Test Password Leak (`sk-live-...`)
+            </button>
+          </div>
+
+          <div class="space-y-2.5">
+            <textarea id="sandbox-rule-input" rows="2" placeholder="Type a rule or preference for your AI to learn..." class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">Always check database tables in read-only mode before making changes.</textarea>
+
+            <div class="flex items-center gap-2">
+              <select id="sandbox-domain-select" aria-label="Skill category" class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none">
+                <option value="tool_synthesis">🛠️ Building Tools</option>
+                <option value="prompt_refinement">✍️ Writing Prompts</option>
+                <option value="memory_policy">🗂️ Organizing Memory</option>
+                <option value="subagent_routing">🤝 Helper Agents</option>
+              </select>
+
+              <button onclick="submitCustomRule()" class="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition">
+                Send to My Local Brain &rarr;
+              </button>
+            </div>
+
+            <div id="sandbox-feedback" class="hidden p-2.5 rounded-xl text-xs font-medium bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- 4. BOTTOM HANDS-ON CONTROL PANELS (RULEBOOK, MIXER & TIME MACHINE)  -->
+    <!-- =================================================================== -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
+
+      <!-- PANEL B (LEFT 7 COLS): YOUR PLAIN-ENGLISH RULEBOOK & MEMORY PROGRESS -->
+      <div class="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+                Inside Room 4 &amp; Room 5
+              </span>
+              <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+                📚 Your AI's Learned Rulebook &amp; Memory Progress
+              </h3>
+            </div>
+            <span class="tech-only font-mono text-xs text-slate-400">data/episodic_buffer.db + anchor_eval.jsonl</span>
+          </div>
+
+          <!-- Memory Consolidation Progress Bar -->
+          <div class="bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/60 rounded-xl p-3.5 mb-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+              <div class="text-xs sm:text-sm font-bold text-purple-950 dark:text-purple-200">
+                🌙 Daily Scratchpad Memory: <span id="scratchpad-count-label">14</span> of 100 Lessons
+              </div>
+              <button onclick="consolidateMemoryNow()" class="px-3 py-1 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs shadow-sm transition">
+                Merge into Permanent Memory Now
+              </button>
+            </div>
+            <p class="text-xs text-purple-800 dark:text-purple-300 mb-2">
+              Every 100 lessons (or whenever you click the button), Room 5 merges your scratchpad notes into permanent memory and runs a <strong>Golden Rule Safety Check</strong> so nothing important is forgotten.
+            </p>
+            <div class="w-full h-2.5 bg-purple-200/70 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div id="scratchpad-progress-bar" class="h-full bg-purple-600 transition-all duration-500" style="width: 14%;"></div>
+            </div>
+          </div>
+
+          <!-- Rulebook Filter Tabs -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="flex flex-wrap gap-1.5">
+              <button onclick="setRulebookTab('ACTIVE')" id="tab-btn-ACTIVE" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white transition">
+                ✓ Active Learned Rules (<span id="count-tab-active">4</span>)
+              </button>
+              <button onclick="setRulebookTab('QUARANTINED')" id="tab-btn-QUARANTINED" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 transition">
+                🚧 Quarantined Tool Crashes (<span id="count-tab-quarantined">2</span>)
+              </button>
+              <button onclick="setRulebookTab('DEPRECATED')" id="tab-btn-DEPRECATED" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 transition">
+                🔄 Retired Old Rules (<span id="count-tab-deprecated">1</span>)
+              </button>
+            </div>
+          </div>
+
+          <!-- Clean Human-Friendly Rulebook List -->
+          <div id="rulebook-list-container" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Bottom Golden Cheat-Sheet Preview Bar -->
+        <div class="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+          <span>🛡️ Protected by <strong>18 Golden Anchor Rules</strong> (99.1% accuracy verified)</span>
+          <button onclick="inspectStation('M6')" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+            Preview 150-Word Cloud Cheat-Sheet &rarr;
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL C (RIGHT 5 COLS): SKILL BALANCE MIXER & 1-CLICK TIME MACHINE -->
+      <div class="lg:col-span-5 flex flex-col gap-6">
+
+        <!-- Skill Balance Mixer -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="font-bold text-base text-slate-900 dark:text-white">
+              🎛️ Skill Balance Mixer (Room 4)
+            </h3>
+            <span id="blend-speed-pill" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300">
+              Blends in 0.003 sec
+            </span>
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-300 mb-3.5">
+            Slide to adjust how much weight your local brain gives each skill cartridge when helping the Cloud AI:
+          </p>
+
+          <div class="space-y-3 text-xs">
+            <div>
+              <div class="flex justify-between font-semibold mb-1">
+                <span class="text-slate-700 dark:text-slate-200">✍️ Writing Better Prompts <span class="tech-only font-mono text-[10px] text-slate-400">(prompt_refinement)</span></span>
+                <span id="pct-prompt_refinement" class="text-blue-600 dark:text-blue-400 font-bold">55%</span>
+              </div>
+              <input type="range" min="0" max="100" value="55" id="mix-prompt_refinement" oninput="rebalanceSkills()" class="w-full" />
+            </div>
+
+            <div>
+              <div class="flex justify-between font-semibold mb-1">
+                <span class="text-slate-700 dark:text-slate-200">🛠️ Building &amp; Fixing Tools <span class="tech-only font-mono text-[10px] text-slate-400">(tool_synthesis)</span></span>
+                <span id="pct-tool_synthesis" class="text-blue-600 dark:text-blue-400 font-bold">20%</span>
+              </div>
+              <input type="range" min="0" max="100" value="20" id="mix-tool_synthesis" oninput="rebalanceSkills()" class="w-full" />
+            </div>
+
+            <div>
+              <div class="flex justify-between font-semibold mb-1">
+                <span class="text-slate-700 dark:text-slate-200">🗂️ Organizing Memory Habits <span class="tech-only font-mono text-[10px] text-slate-400">(memory_policy)</span></span>
+                <span id="pct-memory_policy" class="text-blue-600 dark:text-blue-400 font-bold">15%</span>
+              </div>
+              <input type="range" min="0" max="100" value="15" id="mix-memory_policy" oninput="rebalanceSkills()" class="w-full" />
+            </div>
+
+            <div>
+              <div class="flex justify-between font-semibold mb-1">
+                <span class="text-slate-700 dark:text-slate-200">🤝 Managing Helper Agents <span class="tech-only font-mono text-[10px] text-slate-400">(subagent_routing)</span></span>
+                <span id="pct-subagent_routing" class="text-blue-600 dark:text-blue-400 font-bold">10%</span>
+              </div>
+              <input type="range" min="0" max="100" value="10" id="mix-subagent_routing" oninput="rebalanceSkills()" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 1-Click Time Machine (Brain Version Undo / Restore) -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="font-bold text-base text-slate-900 dark:text-white">
+              ⏪ Time Machine (Undo &amp; Restore Brain Version)
+            </h3>
+            <span class="tech-only font-mono text-[10px] text-slate-400">weights/snapshots/</span>
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-300 mb-3">
+            Your laptop automatically keeps the last 5 verified versions of your AI's brain. Made a mistake? Restore any earlier version in one click:
+          </p>
+
+          <div id="snapshot-list" class="space-y-2 text-xs">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- COMPLETE INTERACTIVE GUIDE & SIMULATION ENGINE                        -->
+  <!-- ===================================================================== -->
+  <script>
+    // -----------------------------------------------------------------------
+    // 1. PLAIN-ENGLISH + TECHNICAL BLUEPRINT DATA FOR EVERY STATION & ROOM
+    // -----------------------------------------------------------------------
+    const STATION_DATA = {
+      'TIER-1': {
+        badge: 'Station 1 • Tier 1',
+        title: '💼 Your Workspace (Harness² Self-Improving Manager)',
+        plain: 'This is the outer layer where you and your helper agents do daily work—like writing emails, fixing code, or running tools. Instead of repeating your preferences every single time, this workspace talks to your Local Brain (Station 3) to remember how you like things done.',
+        metaphor: 'Like an office manager who checks your personal preference binder before handing an assignment to an outside contractor.',
+        file: 'src/bridge/harness2_client.py',
+        speed: 'Event-Driven HTTP Client (Loopback 127.0.0.1:8420)',
+        formula: 'domain_tag in {prompt_refinement, tool_synthesis, memory_policy, subagent_routing}',
+        json: {
+          station: 'Tier 1 — Harness² External Orchestrator',
+          active_skill: 'prompt_refinement',
+          endpoints_used: ['POST /v1/infer', 'POST /v1/observe', 'POST /v1/sleep'],
+          ram_impact: '0 MB extra (delegates state to Tier 2)'
+        }
+      },
+      'SEC-01': {
+        badge: 'Shield 1 • SEC-01',
+        title: '🧼 Secret Scrubber (Automatic Password & Email Eraser)',
+        plain: 'Before any message is saved or learned by your AI brain, this shield scans for passwords, secret API keys (like sk-...), private links, and email addresses, replacing them with <REDACTED_SECRET> so sensitive info can never be memorized.',
+        metaphor: 'Like a security clerk with a black marker who crosses out account numbers and passwords before filing a document.',
+        file: 'src/security/scrubber.py',
+        speed: '< 1.8 ms regex + Shannon entropy scan',
+        formula: 'Entropy H(s) > 4.5 bits/char over >= 24 chars -> <REDACTED_SECRET>',
+        json: {
+          security_gate: 'SEC-01 Scrubber',
+          redacted_patterns: ['sk-*', 'ghp_*', 'AIza*', 'Email', 'High-Entropy Secrets'],
+          secrets_erased_today: 4,
+          status: 'PROTECTING'
+        }
+      },
+      'SEC-02': {
+        badge: 'Shield 2 • SEC-02',
+        title: '🛡️ Hack & Trust Firewall (Blocks Untrusted Websites)',
+        plain: 'If your AI reads an outside webpage or untrusted tool output, a hacker might hide a sneaky command inside that page (like "Ignore your owner\'s rules"). This firewall blocks untrusted outside sources from teaching new habits to your AI brain.',
+        metaphor: 'Like a bouncer who lets you and your verified coworkers teach the new intern, but stops strangers on the street from giving orders.',
+        file: 'src/security/firewall.py',
+        speed: '< 1.2 ms source_trust & override filter',
+        formula: 'Allow Learning iff source_trust in {HUMAN, HARNESS2_VERIFIED}',
+        json: {
+          security_gate: 'SEC-02 Weight Firewall',
+          trusted_sources: ['HUMAN', 'HARNESS2_VERIFIED'],
+          blocked_sources: ['UNTRUSTED_EXTERNAL'],
+          hack_attempts_blocked: 1
+        }
+      },
+      'SEC-03': {
+        badge: 'Shield 3 • SEC-03',
+        title: '🔒 Tamper-Proof File Lock (Digital Fingerprint Check)',
+        plain: 'Your AI\'s learned intuition is stored in safe local files (.safetensors). Every time your laptop loads or updates those files, this shield checks their unique digital fingerprint (SHA-256) so a corrupted file can never run.',
+        metaphor: 'Like a wax seal on a vault door—if anyone tampers with the seal, the system immediately restores a clean backup from the Time Machine.',
+        file: 'src/security/integrity.py',
+        speed: '< 2.5 ms SHA-256 checksum verification',
+        formula: 'SHA256(fast_state.safetensors) == manifest.sha256 (Zero Pickle execution)',
+        json: {
+          security_gate: 'SEC-03 Integrity Lock',
+          file_format: 'SafeTensors (Memory-mapped, cannot run malicious code)',
+          active_fingerprint: 'sha256:8f94e2a91c04b77d',
+          backups_saved: 5
+        }
+      },
+      'SEC-04': {
+        badge: 'Shield 4 • SEC-04',
+        title: '🏠 Private Laptop-Only Door (Invisible to the Internet)',
+        plain: 'Your local AI brain runs on a private internal channel (127.0.0.1) inside your laptop and requires a secret passkey. No other computer on your Wi-Fi or the internet can see or talk to it.',
+        metaphor: 'Like an intercom line wired strictly between two rooms inside your house.',
+        file: 'src/server.py',
+        speed: '0.2 ms passkey check',
+        formula: 'Bind 127.0.0.1:8420 + require X-Harness-Token header',
+        json: {
+          security_gate: 'SEC-04 Loopback Isolation',
+          address: '127.0.0.1:8420 (WSL2 Ubuntu)',
+          internet_exposure: 'NONE (100% Local)',
+          passkey_status: 'VERIFIED'
+        }
+      },
+      'M1': {
+        badge: 'Room 1 • M1',
+        title: '📬 Room 1: The Mailroom & Rule Checker',
+        plain: 'Every task or correction enters here first. It translates human sentences into numbers the AI brain understands and checks if your new instruction contradicts an older rule—so outdated rules can be cleanly retired.',
+        metaphor: 'Like a smart receptionist who sorts incoming mail and pulls out old outdated memos when a new policy arrives.',
+        file: 'src/ingest/normalizer.py',
+        speed: '~12 ms tokenization & embedding check',
+        formula: 'CanonicalEvent -> (input_ids[<=1024], context_embedding in R^896)',
+        json: {
+          module: 'M1: mod_ingest',
+          max_tokens: 1024,
+          conflict_check: 'SOL-UNLEARN cosine similarity check enabled'
+        }
+      },
+      'M2': {
+        badge: 'Room 2 • M2',
+        title: '🎯 Room 2: Surprise Meter & Mistake Filter',
+        plain: 'Just like you don\'t study things you already know by heart, this room measures whether an event is surprising or new (Surprise Score >= 1.85). And if a tool crashes with an error, this room quarantines the crash so your AI never memorizes mistakes!',
+        metaphor: 'Like a smart teacher who only writes a new study flashcard when you get a question wrong—and throws away crumpled scratch paper when a pen breaks.',
+        file: 'src/core/surprise_gate.py',
+        speed: '~28 ms INT8 pass on 4 i9 threads',
+        formula: 'Gate OPEN iff (VERIFIED_SUCCESS and S_t >= 1.85) or is_human_correction == 1',
+        json: {
+          module: 'M2: mod_surprise',
+          current_surprise_score: 1.12,
+          learning_threshold: 1.85,
+          crash_protection: 'SOL-OUTCOME Quarantine Active'
+        }
+      },
+      'M3': {
+        badge: 'Room 3 • M3',
+        title: '📝 Room 3: Fast Scratchpad Memory (Instant Learning)',
+        plain: 'When Room 2 opens the learning gate, Room 3 updates a tiny 3.2 MB "sticky-note" file attached to the top layers of your local Edge AI brain in just 0.08 seconds. It also actively nudges the brain away from any prior quarantined mistakes.',
+        metaphor: 'Like putting a sticky note on the top page of a textbook—you update your habits in less than a tenth of a second without rewriting the whole book.',
+        file: 'src/memory/fast_weights.py',
+        speed: '60 – 110 ms per update (silent on CPU)',
+        formula: 'L_total = L_CE(y_good|x) + 0.2*log P(y_bad|x) on Top-8-Layer Rank-8 LoRA',
+        json: {
+          module: 'M3: mod_fast_weights',
+          scratchpad_file: 'weights/fast_state.safetensors (3.2 MB)',
+          update_time_ms: 84,
+          surprise_reduction_after_learn: '-42.3%'
+        }
+      },
+      'M4': {
+        badge: 'Room 4 • M4',
+        title: '📚 Room 4: Golden Rulebook & Skill Mixer',
+        plain: 'Stores your learned rules in a self-contained local notebook file and blends your 4 separate skill cartridges (Prompts, Tools, Memory, Helper Agents) in 0.003 seconds depending on what job you are doing.',
+        metaphor: 'Like a DJ mixing desk that smoothly turns up your "Tool Building" or "Prompt Writing" skill dial on demand.',
+        file: 'src/memory/vector_bank.py',
+        speed: '< 5 ms in-RAM skill blending',
+        formula: 'Delta W_active = Sum w_k * Delta W_k; Auto-deprecate if ctx_sim >= 0.85 & act_sim < 0.50',
+        json: {
+          module: 'M4: mod_bank',
+          database_file: 'data/episodic_buffer.db (SQLite)',
+          golden_anchors_active: '18 / 100 (SOL-COLDSTART)',
+          skill_files: ['prompt_refinement', 'tool_synthesis', 'memory_policy', 'subagent_routing']
+        }
+      },
+      'M5': {
+        badge: 'Room 5 • M5',
+        title: '🌙 Room 5: Deep Memory Consolidation (Permanent Memory)',
+        plain: 'Every 100 new lessons (or whenever you click "Merge Now"), this room blends your daily scratchpad notes with your historical Golden Rules into permanent memory—and refuses to save unless at least 98% of your old rules pass a safety test.',
+        metaphor: 'Like a good night\'s sleep that turns today\'s short-term notes into permanent long-term intuition without forgetting how to ride a bike.',
+        file: 'src/consolidation/sleep_daemon.py',
+        speed: '< 90 sec background merge (never wakes laptop at night)',
+        formula: 'L_sleep = L_CE(50/50 replay) + 0.4 * D_KL(P_old || P_new); Require Eval >= 98%',
+        json: {
+          module: 'M5: mod_sleep',
+          permanent_file: 'weights/long_term_state.safetensors (3.2 MB)',
+          trigger_rule: 'Every 100 lessons or Manual Button (SOL-THERMAL)',
+          last_golden_rule_test: '99.1% Passed'
+        }
+      },
+      'M6': {
+        badge: 'Room 6 • M6',
+        title: '🎓 Room 6: Cloud Translator & Quality Grader',
+        plain: 'When you ask the big Cloud AI to do a task, Room 6 writes a compact 150-word "Rule Cheat-Sheet" from your local brain weights and attaches it to the request. When the Cloud AI replies, Room 6 grades the draft and makes the Cloud AI fix any rule violations automatically!',
+        metaphor: 'Like a personal editor who hands a style guide to a freelance writer and proofreads their draft before it ever lands on your desk.',
+        file: 'src/bridge/closed_api_bridge.py',
+        speed: '~310 ms cheat-sheet + 28 ms quality grade',
+        formula: 'Emit <=150-token Harness2PolicyEnvelope; Trigger 1 retry if Draft S_t > 1.60',
+        json: {
+          module: 'M6: mod_bridge (Mode B Primary)',
+          cheat_sheet_size: '142 / 150 tokens max',
+          Recent_Cloud_Draft_Grade: 'S_t = 1.12 <= 1.60 (APPROVED)',
+          active_rules_injected: [
+            'Require JSON schema check before subagent tool calls',
+            'Inspect SQLite in read-only mode before writing files',
+            'Route database checks to AsyncCriticSubagent (temp=0.0)'
+          ]
+        }
+      },
+      'TIER-3': {
+        badge: 'Station 4 • Tier 3',
+        title: '☁️ The Big Cloud Thinker (Claude / GPT / Gemini)',
+        plain: 'The giant cloud AI that handles heavy reasoning. Because your rules live inside Station 3 on your laptop rather than locked inside one cloud company\'s chat history, you can switch between Claude, GPT-4o, and Gemini anytime and keep 85%+ of your learned habits immediately.',
+        metaphor: 'Like plugging your personal navigation GPS into any rental car you drive—every car immediately knows your favorite routes.',
+        file: 'External Cloud API / Optional Open-Weight Model (T16)',
+        speed: 'Zero prompt bloat (stays under 150 steering tokens forever)',
+        formula: 'Mode B: Closed API JSON Envelope | Optional Mode A: 64 Soft-Prompt Vectors',
+        json: {
+          station: 'Tier 3 — Target Base Reasoning Model',
+          connection_mode: 'Mode B: Cloud API Cheat-Sheet (Primary)',
+          supported_models: ['Claude 3.7 Sonnet', 'GPT-4o', 'Gemini 2.5 Pro'],
+          model_swap_retention: '>= 85% learned rules retained (ACC-04)'
+        }
+      }
+    };
+
+    // -----------------------------------------------------------------------
+    // 2. FIVE GUIDED STORY WALKTHROUGHS (STEP-BY-STEP NARRATION)
+    // -----------------------------------------------------------------------
+    const STORIES = {
+      story_work: {
+        title: '1. Ask AI to Do a Task',
+        color: 'blue',
+        steps: [
+          {
+            station: 'TIER-1',
+            headline: 'Step 1: You ask your AI to handle a task in your Workspace',
+            body: 'You start in Station 1 (Harness²). Instead of typing out 50 old rules yourself, your workspace asks your private local AI brain for help first.',
+            tech: 'Harness² sends POST /v1/infer (domain_tag="prompt_refinement") to 127.0.0.1:8420.'
+          },
+          {
+            station: 'SEC-04',
+            headline: 'Step 2: The Border Checkpoint verifies your private passkey & file lock',
+            body: 'Station 2 checks that the request came from inside your own laptop and verifies the digital fingerprint on your local brain files.',
+            tech: 'SEC-04 validates X-Harness-Token; SEC-03 verifies manifest.sha256 in 2.1 ms.'
+          },
+          {
+            station: 'M6',
+            headline: 'Step 3: Room 4 & Room 6 prepare a custom 150-word "Rule Cheat-Sheet"',
+            body: 'Room 4 blends your skill cartridges in 0.003 seconds, and Room 6 writes a compact 150-word cheat-sheet containing the exact rules your brain has learned over time.',
+            tech: 'M4 blends task vectors (Delta W = Sum w_k Delta W_k); M6 emits 142-token Harness2PolicyEnvelope.'
+          },
+          {
+            station: 'TIER-3',
+            headline: 'Step 4: The Big Cloud AI does the heavy thinking using your Cheat-Sheet',
+            body: 'Station 4 (Claude, GPT, or Gemini) reads your 150-word cheat-sheet and writes a draft response without needing thousands of old chat messages.',
+            tech: 'Tier 3 Cloud LLM executes with fixed <=150 token PolicyResidual overhead (ACC-02).'
+          },
+          {
+            station: 'M6',
+            headline: 'Step 5: Room 6 grades the Cloud AI\'s draft before you ever see it!',
+            body: 'Before showing you the answer, Room 6 checks if the Cloud AI followed your rules (Surprise Score 1.12 is safe below 1.60). If it broke a rule, Room 6 makes it fix the draft automatically!',
+            tech: 'T08 Residual Critic scores draft S_t = 1.12 <= 1.60 -> APPROVED and returned to Harness².'
+          }
+        ]
+      },
+      story_learn: {
+        title: '2. Teach AI a New Rule',
+        color: 'emerald',
+        steps: [
+          {
+            station: 'TIER-1',
+            headline: 'Step 1: You correct the AI or approve a better way of working',
+            body: 'You give a quick correction in Station 1—for example: "Always inspect database tables in read-only mode before editing files."',
+            tech: 'Harness² sends POST /v1/observe with outcome_status="VERIFIED_SUCCESS", is_human_correction=1.'
+          },
+          {
+            station: 'SEC-01',
+            headline: 'Step 2: The Border Checkpoint scrubs any accidental secrets',
+            body: 'Station 2 scans your message in 0.001 seconds to make sure no passwords or private emails are inside before it enters your local brain.',
+            tech: 'SEC-01 Scrubber & SEC-02 Firewall pass clean SanitizedEvent to M1.'
+          },
+          {
+            station: 'M2',
+            headline: 'Step 3: Room 2 (Surprise Meter) sees this is a brand-new lesson!',
+            body: 'Room 2 measures a high Surprise Score (2.48 is above the 1.85 threshold) and sees this is a verified improvement—so it opens the learning gate!',
+            tech: 'M2 computes token-masked cross-entropy S_t = 2.48 >= 1.85 -> GateDecision(is_open=True).'
+          },
+          {
+            station: 'M3',
+            headline: 'Step 4: Room 3 updates your Fast Scratchpad Memory in 0.08 seconds',
+            body: 'Room 3 updates your local 3.2 MB sticky-note brain file on your Intel i9 processor. Immediately, the AI\'s surprise on this rule drops by 42%—it knows the rule now!',
+            tech: 'M3 runs 2-step AdamW on Top-8-Layer Rank-8 LoRA in 84ms -> Re-eval S_t\' drops to 1.43 (-42.3%).'
+          }
+        ]
+      },
+      story_crash: {
+        title: '3. AI Tool Crashes (Bad-Habit Protection)',
+        color: 'amber',
+        steps: [
+          {
+            station: 'TIER-1',
+            headline: 'Step 1: A tool crashes with a messy 500-line error message',
+            body: 'While working in Station 1, a database tool times out and spits out a huge error crash report.',
+            tech: 'Harness² reports event with outcome_status="FAILURE" to POST /v1/observe.'
+          },
+          {
+            station: 'M2',
+            headline: 'Step 2: Room 2 spots the crash and LOCKS the learning gate shut!',
+            body: 'Even though the crash is "surprising" (Score 3.15), Room 2 knows it was a failure. It refuses to update your brain files so your AI never memorizes broken behavior.',
+            tech: 'SOL-OUTCOME Filter: outcome_status == "FAILURE" -> GateDecision(is_open=False), 0 weight writes.'
+          },
+          {
+            station: 'M4',
+            headline: 'Step 3: The crash is placed in Quarantine until a real fix arrives',
+            body: 'Room 4 logs the crash in a separate Quarantine list. Later, when a working fix is found, Room 3 will train toward the fix and actively push the brain away from this crash!',
+            tech: 'Inserted into SQLite pending_failures table for future Contrastive Unlikelihood (+0.2 log P(y_bad|x)).'
+          }
+        ]
+      },
+      story_unlearn: {
+        title: '4. Change an Old Rule (Smart Unlearning)',
+        color: 'purple',
+        steps: [
+          {
+            station: 'M1',
+            headline: 'Step 1: You teach a new rule that contradicts last month\'s habit',
+            body: 'Suppose last month you told the AI to use "LegacySyncHelper", but today you tell it: "Use AsyncCriticHelper for all database checks instead."',
+            tech: 'M1 computes mean-pooled context & action embeddings for incoming human override.'
+          },
+          {
+            station: 'M4',
+            headline: 'Step 2: Room 4 detects the contradiction and retires the old rule',
+            body: 'Room 4 sees that the topic is 91% identical to the old rule, but the action is completely different. It automatically marks the old rule as "Retired" so the AI won\'t get confused!',
+            tech: 'SOL-UNLEARN: context_sim=0.91 (>=0.85) & action_sim=0.24 (<0.50) -> old rule marked DEPRECATED & evicted from anchors.'
+          },
+          {
+            station: 'M3',
+            headline: 'Step 3: Room 3 learns your new rule cleanly with zero conflict',
+            body: 'Your Fast Scratchpad Memory updates with the new habit, and when Deep Memory Consolidation runs later, it won\'t fight to keep the retired rule.',
+            tech: 'M3 updates fast_state.safetensors (89ms); anchor_eval.jsonl updated cleanly.'
+          }
+        ]
+      },
+      story_security: {
+        title: '5. Block a Leaked Password & Hack',
+        color: 'rose',
+        steps: [
+          {
+            station: 'TIER-1',
+            headline: 'Step 1: A message arrives containing a secret password & a web hack',
+            body: 'Someone accidentally pastes a live secret API key (sk-live-9988...) along with text copied from an untrusted website trying to hijack the AI.',
+            tech: 'Incoming payload tagged source_trust="UNTRUSTED_EXTERNAL" with sk-live-* token.'
+          },
+          {
+            station: 'SEC-01',
+            headline: 'Step 2: Shield 1 (Secret Scrubber) erases the password immediately',
+            body: 'Before the text can touch your hard drive or brain files, Shield 1 spots the secret key pattern and replaces it with <REDACTED_SECRET>.',
+            tech: 'SEC-01 regex + entropy (H=4.82 > 4.5) replaces key with <REDACTED_SECRET> in 1.1 ms.'
+          },
+          {
+            station: 'SEC-02',
+            headline: 'Step 3: Shield 2 (Hack Firewall) blocks the untrusted web command cold',
+            body: 'Shield 2 sees the message came from an untrusted outside source and contains a hijack attempt. It blocks the message at the border—your local AI brain stays 100% untouched!',
+            tech: 'SEC-02 Firewall rejects UNTRUSTED_EXTERNAL override payload; 0 tokens reach M1/M2/M3.'
+          }
+        ]
+      }
+    };
+
+    // -----------------------------------------------------------------------
+    // 3. LIVE STATE FOR SANDBOX, RULEBOOK, MIXER & TIME MACHINE
+    // -----------------------------------------------------------------------
+    let currentStoryKey = 'story_work';
+    let currentStepIndex = 0;
+    let autoPlayInterval = null;
+    let isTechView = false;
+    let isInspectorDrawerOpen = false;
+    let currentRulebookTab = 'ACTIVE';
+    let scratchpadLessons = 14;
+    let erasedSecretsCount = 4;
+    let blockedHacksCount = 1;
+
+    let rulesDatabase = [
+      {
+        id: 'Rule #104',
+        skill: '✍️ Writing Prompts',
+        domain: 'prompt_refinement',
+        text: 'Always validate JSON structure before sending instructions to helper agents.',
+        status: 'ACTIVE',
+        note: 'Learned & Verified • Surprise dropped 41%'
+      },
+      {
+        id: 'Rule #108',
+        skill: '🛠️ Building Tools',
+        domain: 'tool_synthesis',
+        text: 'Inspect SQLite database tables in read-only mode before modifying any file.',
+        status: 'ACTIVE',
+        note: 'Golden Anchor Rule • Protected in Permanent Memory'
+      },
+      {
+        id: 'Rule #112',
+        skill: '🤝 Helper Agents',
+        domain: 'subagent_routing',
+        text: 'Send all database verification tasks to AsyncCriticHelper with zero randomness.',
+        status: 'ACTIVE',
+        note: 'Replaced older rule #91 • Active in Scratchpad'
+      },
+      {
+        id: 'Rule #115',
+        skill: '🗂️ Organizing Memory',
+        domain: 'memory_policy',
+        text: 'Clear out long error logs from working memory once a fix is confirmed.',
+        status: 'ACTIVE',
+        note: 'Day-1 Seed Rule • Protected in Permanent Memory'
+      },
+      {
+        id: 'Crash #801',
+        skill: '🛠️ Building Tools',
+        domain: 'tool_synthesis',
+        text: 'Two helper agents tried to overwrite schema.sql at the exact same moment (File Lock Crash).',
+        status: 'QUARANTINED',
+        note: 'Quarantined by Room 2 • 0% learned so AI avoids this mistake'
+      },
+      {
+        id: 'Crash #802',
+        skill: '🤝 Helper Agents',
+        domain: 'subagent_routing',
+        text: 'Helper agent ran an unverified terminal command that timed out after 30 seconds.',
+        status: 'QUARANTINED',
+        note: 'Quarantined by Room 2 • Waiting for verified fix'
+      },
+      {
+        id: 'Old Rule #91',
+        skill: '🤝 Helper Agents',
+        domain: 'subagent_routing',
+        text: 'Use old LegacySyncHelper for database checks (Retired when Rule #112 was taught).',
+        status: 'DEPRECATED',
+        note: 'Automatically retired by Room 4 (Smart Unlearning)'
+      }
+    ];
+
+    let brainSnapshots = [
+      {
+        ver: 'Version 82 (Current Brain)',
+        time: 'Just now • All 18 Golden Rules intact',
+        hash: 'sha256:8f94e2a',
+        active: true
+      },
+      {
+        ver: 'Version 81 (Before latest rule)',
+        time: '12 mins ago • Verified safe',
+        hash: 'sha256:4c19b0d',
+        active: false
+      },
+      {
+        ver: 'Version 80 (Morning checkpoint)',
+        time: '2 hours ago • Verified safe',
+        hash: 'sha256:9a72e11',
+        active: false
+      },
+      {
+        ver: 'Version 79 (After last Deep Memory merge)',
+        time: 'Yesterday • 99.1% Golden Rule score',
+        hash: 'sha256:2f88c34',
+        active: false
+      }
+    ];
+
+    // -----------------------------------------------------------------------
+    // 4. VIEW & THEME TOGGLES
+    // -----------------------------------------------------------------------
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.toggle('dark');
+      document.getElementById('theme-toggle-label').textContent = isDark ? '☀️ Daylight Mode' : '🌙 Dark Mode';
+    }
+
+    function toggleTechMode() {
+      isTechView = !isTechView;
+      document.body.classList.toggle('show-tech-specs', isTechView);
+      const label = document.getElementById('tech-toggle-label');
+      const btn = document.getElementById('tech-toggle-btn');
+
+      if (isTechView) {
+        label.textContent = 'View: Explicit Blueprint Specs (v2.0)';
+        btn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-600 text-xs font-semibold text-white shadow-sm transition';
+        if (!isInspectorDrawerOpen) toggleInspectorTechDrawer(true);
+      } else {
+        label.textContent = 'View: Simple Human Guide';
+        btn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition';
+      }
+    }
+
+    function toggleInspectorTechDrawer(forceOpen = null) {
+      isInspectorDrawerOpen = forceOpen !== null ? forceOpen : !isInspectorDrawerOpen;
+      const drawer = document.getElementById('insp-tech-drawer');
+      const chev = document.getElementById('drawer-chevron');
+      if (isInspectorDrawerOpen) {
+        drawer.classList.remove('hidden');
+        chev.textContent = '▲ Hide';
+      } else {
+        drawer.classList.add('hidden');
+        chev.textContent = '▼ Show';
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 5. STATION & ROOM INSPECTOR
+    // -----------------------------------------------------------------------
+    function clearAllSpotlights() {
+      const ids = ['TIER-1', 'SEC-01', 'SEC-02', 'SEC-03', 'SEC-04', 'M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'TIER-3'];
+      ids.forEach(id => {
+        const el = document.getElementById(`station-${id}`);
+        if (el) {
+          el.classList.remove('spotlight-blue', 'spotlight-emerald', 'spotlight-amber', 'spotlight-rose', 'spotlight-purple', 'selected-card-ring');
+        }
+      });
+    }
+
+    function inspectStation(stationId, spotlightColor = null) {
+      const data = STATION_DATA[stationId];
+      if (!data) return;
+
+      clearAllSpotlights();
+      const targetEl = document.getElementById(`station-${stationId}`);
+      if (targetEl) {
+        if (spotlightColor) {
+          targetEl.classList.add(`spotlight-${spotlightColor}`);
+        } else {
+          targetEl.classList.add('selected-card-ring');
+        }
+      }
+
+      document.getElementById('insp-badge').textContent = data.badge;
+      document.getElementById('insp-title').textContent = data.title;
+      document.getElementById('insp-plain').textContent = data.plain;
+      document.getElementById('insp-metaphor').textContent = data.metaphor;
+      document.getElementById('insp-file').textContent = data.file;
+      document.getElementById('insp-speed').textContent = data.speed;
+      document.getElementById('insp-formula').textContent = data.formula;
+      document.getElementById('insp-json').textContent = JSON.stringify(data.json, null, 2);
+    }
+
+    // -----------------------------------------------------------------------
+    // 6. GUIDED STORY WALKTHROUGH ENGINE
+    // -----------------------------------------------------------------------
+    function selectStory(storyKey) {
+      stopAutoPlay();
+      currentStoryKey = storyKey;
+      currentStepIndex = 0;
+
+      // Update Story Card active borders
+      ['story_work', 'story_learn', 'story_crash', 'story_unlearn', 'story_security'].forEach(k => {
+        const btn = document.getElementById(`story-btn-${k}`);
+        if (k === storyKey) {
+          btn.className = 'text-left p-3 rounded-xl border-2 border-blue-600 bg-blue-50/80 dark:bg-blue-950/50 transition flex flex-col justify-between shadow-sm';
+        } else {
+          btn.className = 'text-left p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-400 bg-slate-50/60 dark:bg-slate-800/40 transition flex flex-col justify-between';
+        }
+      });
+
+      renderStoryStep();
+    }
+
+    function renderStoryStep() {
+      const story = STORIES[currentStoryKey];
+      const step = story.steps[currentStepIndex];
+      const total = story.steps.length;
+
+      const badge = document.getElementById('narrator-step-badge');
+      badge.textContent = `${story.title} • Step ${currentStepIndex + 1} of ${total}`;
+
+      const badgeColors = {
+        blue: 'bg-blue-600 text-white',
+        emerald: 'bg-emerald-600 text-white',
+        amber: 'bg-amber-600 text-white',
+        purple: 'bg-purple-600 text-white',
+        rose: 'bg-rose-600 text-white'
+      };
+      badge.className = `px-2.5 py-0.5 rounded-full text-xs font-bold ${badgeColors[story.color] || 'bg-blue-600 text-white'}`;
+
+      document.getElementById('narrator-headline').textContent = step.headline;
+      document.getElementById('narrator-body').textContent = step.body;
+      document.getElementById('narrator-tech-note').textContent = `[Tech Spec]: ${step.tech}`;
+
+      document.getElementById('btn-prev-step').disabled = (currentStepIndex === 0);
+      document.getElementById('btn-next-step').textContent = (currentStepIndex === total - 1) ? '✓ Done (Restart)' : 'Next Step ▶';
+
+      // Spotlight the active room/station & sync inspector
+      inspectStation(step.station, story.color);
+
+      // Dynamic pill updates based on story context
+      const m2Pill = document.getElementById('room-m2-pill');
+      if (currentStoryKey === 'story_learn' && currentStepIndex >= 2) {
+        m2Pill.textContent = 'Surprise: High (2.48) -> Gate OPEN!';
+        m2Pill.className = 'text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300';
+      } else if (currentStoryKey === 'story_crash' && currentStepIndex >= 1) {
+        m2Pill.textContent = 'Crash Quarantined (Gate LOCKED)';
+        m2Pill.className = 'text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300';
+      } else {
+        m2Pill.textContent = 'Surprise: Low (1.12)';
+        m2Pill.className = 'text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300';
+      }
+    }
+
+    function nextStoryStep() {
+      const story = STORIES[currentStoryKey];
+      if (currentStepIndex < story.steps.length - 1) {
+        currentStepIndex++;
+      } else {
+        currentStepIndex = 0;
+        stopAutoPlay();
+      }
+      renderStoryStep();
+    }
+
+    function prevStoryStep() {
+      if (currentStepIndex > 0) {
+        currentStepIndex--;
+        renderStoryStep();
+      }
+    }
+
+    function resetStory() {
+      stopAutoPlay();
+      currentStepIndex = 0;
+      renderStoryStep();
+    }
+
+    function toggleAutoPlay() {
+      if (autoPlayInterval) {
+        stopAutoPlay();
+      } else {
+        const btn = document.getElementById('btn-autoplay');
+        btn.textContent = '⏸ Pause Walkthrough';
+        btn.className = 'px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-xs font-semibold text-white shadow-sm transition';
+        autoPlayInterval = setInterval(() => {
+          const story = STORIES[currentStoryKey];
+          if (currentStepIndex < story.steps.length - 1) {
+            currentStepIndex++;
+            renderStoryStep();
+          } else {
+            stopAutoPlay();
+          }
+        }, 2400);
+      }
+    }
+
+    function stopAutoPlay() {
+      if (autoPlayInterval) {
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+      }
+      const btn = document.getElementById('btn-autoplay');
+      if (btn) {
+        btn.textContent = '▶ Auto-Play Story';
+        btn.className = 'px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow-sm transition';
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 7. SKILL SELECTOR, BRIDGE MODE & MIXER CONTROLS
+    // -----------------------------------------------------------------------
+    function selectSkillDomain(domain) {
+      const domains = ['prompt_refinement', 'tool_synthesis', 'memory_policy', 'subagent_routing'];
+      domains.forEach(d => {
+        const pill = document.getElementById(`skill-pill-${d}`);
+        if (d === domain) {
+          pill.className = 'p-2 rounded-xl border-2 border-blue-600 bg-blue-50/80 dark:bg-blue-950/60 text-left transition';
+        } else {
+          pill.className = 'p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-400 bg-slate-50 dark:bg-slate-800/50 text-left transition';
+        }
+      });
+
+      const presets = {
+        prompt_refinement: [60, 15, 15, 10],
+        tool_synthesis: [15, 60, 10, 15],
+        memory_policy: [15, 10, 60, 15],
+        subagent_routing: [10, 15, 15, 60]
+      }[domain];
+
+      domains.forEach((d, idx) => {
+        document.getElementById(`mix-${d}`).value = presets[idx];
+      });
+      rebalanceSkills();
+      document.getElementById('sandbox-domain-select').value = domain;
+    }
+
+    function rebalanceSkills() {
+      const domains = ['prompt_refinement', 'tool_synthesis', 'memory_policy', 'subagent_routing'];
+      let vals = domains.map(d => parseFloat(document.getElementById(`mix-${d}`).value) || 0);
+      let total = vals.reduce((a, b) => a + b, 0);
+      if (total <= 0) {
+        vals = [25, 25, 25, 25];
+        total = 100;
+      }
+      domains.forEach((d, i) => {
+        const pct = Math.round((vals[i] / total) * 100);
+        document.getElementById(`pct-${d}`).textContent = `${pct}%`;
+      });
+      document.getElementById('blend-speed-pill').textContent = `Blended in 0.00${Math.floor(2 + Math.random() * 3)} sec`;
+    }
+
+    function setBridgeMode(mode) {
+      const btnB = document.getElementById('mode-btn-MODE_B');
+      const btnA = document.getElementById('mode-btn-MODE_A');
+      const desc = document.getElementById('tier3-plain-desc');
+      const conn = document.getElementById('connector-3-4-text');
+
+      if (mode === 'MODE_B') {
+        btnB.className = 'text-xs font-semibold px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm transition';
+        btnA.className = 'text-xs font-medium px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
+        desc.innerHTML = '<strong>What happens here:</strong> Even though the big Cloud AI is frozen and doesn\'t know your personal habits, it reads the 150-word <strong>Rule Cheat-Sheet</strong> prepared by Room 6 on your laptop. Even if you switch from Claude to ChatGPT or Gemini tomorrow, <strong>your local brain keeps 85%+ of your learned rules intact!</strong>';
+        conn.textContent = '⬇️ Sends compact 150-word Rule Cheat-Sheet • Grades reply on return ⬆️';
+      } else {
+        btnA.className = 'text-xs font-semibold px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 text-purple-600 dark:text-purple-400 shadow-sm transition';
+        btnB.className = 'text-xs font-medium px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
+        desc.innerHTML = '<strong>Future Direct Brain Link (Mode A / Phase 6):</strong> When connecting to an Open-Weight AI model, Room 6 skips English words completely and beams <strong>64 continuous brain-signal vectors</strong> straight into the big model\'s input layer with zero text added!';
+        conn.textContent = '⬇️ Direct Brain Link: Beams 64 continuous virtual memory vectors (0 text tokens) ⬇️';
+      }
+      inspectStation('TIER-3', 'purple');
+    }
+
+    // -----------------------------------------------------------------------
+    // 8. HANDS-ON SANDBOX ("TRY TEACHING YOUR AI A RULE RIGHT NOW")
+    // -----------------------------------------------------------------------
+    function fillSandboxPreset(text, domain) {
+      document.getElementById('sandbox-rule-input').value = text;
+      document.getElementById('sandbox-domain-select').value = domain;
+    }
+
+    function submitCustomRule() {
+      const inputEl = document.getElementById('sandbox-rule-input');
+      const domain = document.getElementById('sandbox-domain-select').value;
+      const rawText = (inputEl.value || '').trim();
+      if (!rawText) return;
+
+      // 1. Run SEC-01 Secret Scrubber on the user's input
+      const secretRegex = /(sk-[a-zA-Z0-9_-]{8,}|ghp_[a-zA-Z0-9]{8,}|AIza[a-zA-Z0-9_-]{8,}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+      let hadSecret = false;
+      const scrubbedText = rawText.replace(secretRegex, () => {
+        hadSecret = true;
+        return '<REDACTED_SECRET>';
+      });
+
+      const skillLabels = {
+        prompt_refinement: '✍️ Writing Prompts',
+        tool_synthesis: '🛠️ Building Tools',
+        memory_policy: '🗂️ Organizing Memory',
+        subagent_routing: '🤝 Helper Agents'
+      };
+
+      if (hadSecret) {
+        erasedSecretsCount++;
+        document.getElementById('badge-sec01-count').textContent = `${erasedSecretsCount} Erased`;
+      }
+
+      // 2. Add to Rulebook & increment scratchpad counter
+      scratchpadLessons = Math.min(100, scratchpadLessons + 1);
+      const newRuleId = `Rule #${105 + rulesDatabase.length}`;
+      rulesDatabase.unshift({
+        id: newRuleId,
+        skill: skillLabels[domain] || '✍️ Writing Prompts',
+        domain: domain,
+        text: scrubbedText,
+        status: 'ACTIVE',
+        note: hadSecret
+          ? '🛡️ Secret password automatically erased by Shield 1 • Learned in 0.08s'
+          : '⚡ Learned into Fast Scratchpad Memory in 0.08s • Surprise dropped 39%'
+      });
+
+      // Add a new Time Machine snapshot
+      const newSnapNum = 82 + (scratchpadLessons - 14);
+      brainSnapshots.forEach(s => s.active = false);
+      brainSnapshots.unshift({
+        ver: `Version ${newSnapNum} (Latest Learned Rule)`,
+        time: `Just now • Saved ${newRuleId}`,
+        hash: 'sha256:' + Math.random().toString(16).substring(2, 9),
+        active: true
+      });
+      if (brainSnapshots.length > 5) brainSnapshots.pop();
+
+      // Update UI Feedback
+      const feedbackEl = document.getElementById('sandbox-feedback');
+      feedbackEl.classList.remove('hidden');
+      if (hadSecret) {
+        feedbackEl.className = 'p-2.5 rounded-xl text-xs font-medium bg-amber-50 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-800';
+        feedbackEl.innerHTML = `🛡️ <strong>Security Shield 1 Caught a Secret!</strong> Your password/email was scrubbed into <code>&lt;REDACTED_SECRET&gt;</code>, and the safe rule was learned by <strong>Room 3</strong> in 0.08 seconds!`;
+        inspectStation('SEC-01', 'rose');
+      } else {
+        feedbackEl.className = 'p-2.5 rounded-xl text-xs font-medium bg-emerald-50 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800';
+        feedbackEl.innerHTML = `⚡ <strong>Learned in 0.08 Seconds!</strong> Room 2 measured a high surprise score, and Room 3 updated your local <code>fast_state.safetensors</code> scratchpad. See <strong>${newRuleId}</strong> in your Rulebook below!`;
+        inspectStation('M3', 'emerald');
+      }
+
+      setRulebookTab('ACTIVE');
+      renderRulebook();
+      renderSnapshots();
+    }
+
+    // -----------------------------------------------------------------------
+    // 9. RULEBOOK, CONSOLIDATION & TIME MACHINE RENDERING
+    // -----------------------------------------------------------------------
+    function setRulebookTab(tab) {
+      currentRulebookTab = tab;
+      ['ACTIVE', 'QUARANTINED', 'DEPRECATED'].forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (t === tab) {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white transition';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 transition';
+        }
+      });
+      renderRulebook();
+    }
+
+    function renderRulebook() {
+      const activeCount = rulesDatabase.filter(r => r.status === 'ACTIVE').length;
+      const quarCount = rulesDatabase.filter(r => r.status === 'QUARANTINED').length;
+      const depCount = rulesDatabase.filter(r => r.status === 'DEPRECATED').length;
+
+      document.getElementById('count-tab-active').textContent = activeCount;
+      document.getElementById('count-tab-quarantined').textContent = quarCount;
+      document.getElementById('count-tab-deprecated').textContent = depCount;
+
+      document.getElementById('scratchpad-count-label').textContent = scratchpadLessons;
+      document.getElementById('scratchpad-progress-bar').style.width = `${Math.min(100, scratchpadLessons)}%`;
+
+      const container = document.getElementById('rulebook-list-container');
+      const filtered = rulesDatabase.filter(r => r.status === currentRulebookTab);
+
+      container.innerHTML = filtered.map(item => {
+        let badgeStyle = 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300';
+        if (item.status === 'QUARANTINED') badgeStyle = 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300';
+        if (item.status === 'DEPRECATED') badgeStyle = 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300';
+
+        const textDecoration = item.status === 'DEPRECATED' ? 'line-through opacity-75' : '';
+
+        return `
+          <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-900 dark:text-white">${item.id}</span>
+                <span class="text-[11px] font-medium px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">${item.skill}</span>
+              </div>
+              <p class="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-100 ${textDecoration}">
+                "${item.text}"
+              </p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">${item.note}</p>
+            </div>
+            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 self-start sm:self-center ${badgeStyle}">
+              ${item.status === 'ACTIVE' ? '✓ Active Rule' : item.status === 'QUARANTINED' ? '🚧 Quarantined' : '🔄 Retired'}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function consolidateMemoryNow() {
+      scratchpadLessons = 0;
+      renderRulebook();
+      inspectStation('M5', 'purple');
+      document.getElementById('room-m5-pill').textContent = '✓ Merged! (99.4% Pass)';
+      const feedbackEl = document.getElementById('sandbox-feedback');
+      feedbackEl.classList.remove('hidden');
+      feedbackEl.className = 'p-2.5 rounded-xl text-xs font-medium bg-purple-50 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 border border-purple-300 dark:border-purple-800';
+      feedbackEl.innerHTML = `🌙 <strong>Deep Memory Consolidation Complete!</strong> Room 5 merged your scratchpad into permanent memory (<code>long_term_state.safetensors</code>) with <strong>99.4% Golden Rule accuracy</strong> and cleared the daily scratchpad to 0/100.`;
+    }
+
+    function renderSnapshots() {
+      const container = document.getElementById('snapshot-list');
+      container.innerHTML = brainSnapshots.map((snap, idx) => {
+        const isCurrent = snap.active;
+        return `
+          <div class="p-2.5 rounded-xl border ${isCurrent ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/30' : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40'} flex items-center justify-between gap-2">
+            <div>
+              <div class="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                <span>${snap.ver}</span>
+                <span class="tech-only font-mono text-[10px] text-purple-600 dark:text-purple-400">(${snap.hash})</span>
+              </div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">${snap.time}</div>
+            </div>
+            ${isCurrent
+              ? '<span class="px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-[11px]">Active Now</span>'
+              : `<button onclick="restoreBrainSnapshot(${idx})" class="px-2.5 py-1 rounded-lg bg-slate-900 dark:bg-white hover:bg-blue-600 dark:hover:bg-blue-400 text-white dark:text-slate-900 font-semibold text-[11px] transition">Restore This</button>`
+            }
+          </div>
+        `;
+      }).join('');
+    }
+
+    function restoreBrainSnapshot(index) {
+      brainSnapshots.forEach((s, i) => s.active = (i === index));
+      renderSnapshots();
+      inspectStation('SEC-03', 'emerald');
+      const restored = brainSnapshots[index];
+      const feedbackEl = document.getElementById('sandbox-feedback');
+      feedbackEl.classList.remove('hidden');
+      feedbackEl.className = 'p-2.5 rounded-xl text-xs font-medium bg-sky-50 dark:bg-sky-950/80 text-sky-900 dark:text-sky-200 border border-sky-300 dark:border-sky-800';
+      feedbackEl.innerHTML = `⏪ <strong>Time Machine Restored!</strong> Switched brain weights back to <strong>${restored.ver}</strong> after verifying its digital fingerprint (<code>${restored.hash}</code>).`;
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderRulebook();
+      renderSnapshots();
+      selectStory('story_work');
+    });
+  </script>
+</body>
+</html>

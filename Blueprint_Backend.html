@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Internal Harness v2.0 — Edge AI Blueprint for Harness² (WSL2 / i9 Ultra-Lean Edition)</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --surface: #151b26;
+      --surface-alt: #1e2636;
+      --border: #2e384d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent-blue: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-amber: #d29922;
+      --accent-purple: #bc8cff;
+      --accent-red: #f85149;
+      --accent-cyan: #39c5cf;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.55;
+      padding: 2rem 1.5rem 4rem;
+      max-width: 1260px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge.green { color: var(--accent-green); }
+    .badge.amber { color: var(--accent-amber); }
+    .badge.purple { color: var(--accent-purple); }
+    .badge.cyan { color: var(--accent-cyan); }
+    .badge.red { color: var(--accent-red); }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.96rem;
+      max-width: 960px;
+    }
+
+    nav.toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.85rem 1rem;
+      border-radius: 6px;
+      margin-bottom: 2.25rem;
+    }
+
+    nav.toc a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-family: var(--font-mono);
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      background: var(--surface-alt);
+      border: 1px solid transparent;
+    }
+
+    nav.toc a:hover {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    section {
+      margin-bottom: 2.75rem;
+    }
+
+    h2 {
+      font-size: 1.32rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    h2 .sec-num {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--accent-blue);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    h3 {
+      font-size: 1.02rem;
+      font-weight: 600;
+      margin: 1.25rem 0 0.6rem;
+      color: var(--accent-blue);
+    }
+
+    p {
+      margin-bottom: 0.75rem;
+      font-size: 0.93rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(370px, 1fr));
+      gap: 1rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.1rem 1.2rem;
+    }
+
+    .card.security-card {
+      border-left: 3px solid var(--accent-red);
+    }
+
+    .card.solution-card {
+      border-left: 3px solid var(--accent-cyan);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.65rem;
+      padding-bottom: 0.45rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-weight: 600;
+      font-size: 0.96rem;
+      color: var(--text);
+    }
+
+    .card-id {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-amber);
+      background: var(--surface-alt);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    ul.lean-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    ul.lean-list li {
+      position: relative;
+      padding-left: 1.1rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.89rem;
+    }
+
+    ul.lean-list li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: var(--accent-blue);
+    }
+
+    .kv-row {
+      display: grid;
+      grid-template-columns: 145px 1fr;
+      gap: 0.5rem;
+      font-size: 0.87rem;
+      padding: 0.32rem 0;
+      border-bottom: 1px dashed #262f40;
+    }
+
+    .kv-row:last-child {
+      border-bottom: none;
+    }
+
+    .kv-key {
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .kv-val {
+      color: var(--text);
+    }
+
+    code, pre {
+      font-family: var(--font-mono);
+      font-size: 0.83rem;
+    }
+
+    code {
+      background: var(--surface-alt);
+      padding: 0.12rem 0.35rem;
+      border-radius: 3px;
+      color: var(--accent-purple);
+    }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      overflow-x: auto;
+      line-height: 1.45;
+      color: var(--text);
+      margin: 0.75rem 0 1.25rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0 1.25rem;
+      font-size: 0.87rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--surface-alt);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .arch-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin: 1rem 0 1.5rem;
+    }
+
+    .arch-tier {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 0.9rem 1.1rem;
+    }
+
+    .arch-tier.internal-focus {
+      border: 2px solid var(--accent-blue);
+      background: #111a2e;
+    }
+
+    .tier-label {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-blue);
+      margin-bottom: 0.45rem;
+      display: block;
+    }
+
+    .arrow-down {
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .phase-block {
+      margin-bottom: 1.75rem;
+    }
+
+    .phase-banner {
+      background: var(--surface-alt);
+      border-left: 4px solid var(--accent-green);
+      padding: 0.65rem 1rem;
+      margin-bottom: 0.85rem;
+      border-radius: 0 6px 6px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .phase-banner.optional {
+      border-left-color: var(--accent-purple);
+    }
+
+    .phase-banner h3 {
+      margin: 0;
+      color: var(--text);
+      font-size: 0.98rem;
+    }
+
+    .phase-meta {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--accent-green);
+    }
+
+    .phase-banner.optional .phase-meta {
+      color: var(--accent-purple);
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        padding: 0;
+      }
+      .card, table, pre, .arch-tier, nav.toc {
+        background: #ffffff !important;
+        border-color: #cccccc !important;
+        color: #000000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge-row">
+      <span class="badge">System Spec v2.0</span>
+      <span class="badge green">Target: Harness² Self-Improving Engine</span>
+      <span class="badge cyan">Edge Backbone: Qwen3.5-0.8B / 1.7B INT8</span>
+      <span class="badge amber">WSL2 Ubuntu + Intel i9 Silent Mode</span>
+      <span class="badge red">Hardened Security &amp; Anti-Poisoning</span>
+    </div>
+    <h1>Internal Harness v2.0: Ultra-Lean Edge Continual Learning Blueprint for Harness²</h1>
+    <p class="subtitle">
+      Explicit, zero-ambiguity engineering specification for a silent, battery-safe, locally owned Edge AI Internal Harness running on WSL2 (Intel Core i9-13900H, 32 GB RAM). Designed specifically to power <strong>Harness²</strong> so agents continuously refine their own system prompts, tools, memory policies, and subagent topologies inside local plastic weights (<code>.safetensors</code>).
+    </p>
+  </header>
+
+  <nav class="toc">
+    <a href="#sec-1">01. Stack &amp; Hardware Profile</a>
+    <a href="#sec-2">02. Core Engineering Solutions</a>
+    <a href="#sec-3">03. Security &amp; Anti-Poisoning</a>
+    <a href="#sec-4">04. Six Core Modules</a>
+    <a href="#sec-5">05. Explicit Schemas &amp; Config</a>
+    <a href="#sec-6">06. Phased Build Plan (T01–T16)</a>
+    <a href="#sec-7">07. Verification Matrix</a>
+  </nav>
+
+  <!-- SECTION 1 -->
+  <section id="sec-1">
+    <h2><span class="sec-num">01</span> System Definition, Hardware Profile &amp; Harness² Stack Position</h2>
+    <p>
+      The <strong>Internal Harness</strong> sits directly beneath <strong>Harness²</strong> (Tier 1) and above the <strong>Frozen Cloud LLM API</strong> (Tier 3). Instead of stuffing past mistakes and prompt edits into an ever-growing text window, Harness² delegates its continual learning to a compressed local Edge AI model whose plastic weights evolve on every verified refinement.
+    </p>
+
+    <div class="grid-2" style="margin-bottom: 1.25rem;">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Locked Hardware &amp; OS Environment</span>
+          <span class="card-id">WSL2-UBUNTU</span>
+        </div>
+        <div class="kv-row"><span class="kv-key">Processor:</span><span class="kv-val">13th Gen Intel Core i9-13900H (AVX2 + VNNI INT8 acceleration).</span></div>
+        <div class="kv-row"><span class="kv-key">System Memory:</span><span class="kv-val">32.0 GB RAM (WSL2 allocated <code>16 GB</code> max in <code>.wslconfig</code>; Harness uses <code>&lt; 1.5 GB</code>).</span></div>
+        <div class="kv-row"><span class="kv-key">OS Runtime:</span><span class="kv-val">WSL2 Ubuntu 24.04 LTS, Python 3.11+, PyTorch CPU/XPU with <code>torchao</code> INT8.</span></div>
+        <div class="kv-row"><span class="kv-key">Silent Thermal Cap:</span><span class="kv-val">Pinned to <code>4</code> CPU threads (<code>torch.set_num_threads(4)</code>); <code>0.0%</code> CPU load when idle.</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Locked Edge AI Backbone &amp; Micro-LoRA</span>
+          <span class="card-id">EDGE-INT8</span>
+        </div>
+        <div class="kv-row"><span class="kv-key">Edge Model:</span><span class="kv-val"><code>Qwen/Qwen3.5-0.8B</code> (Primary Ultra-Lean) or <code>Qwen/Qwen3-1.7B</code>.</span></div>
+        <div class="kv-row"><span class="kv-key">Compression:</span><span class="kv-val">Architecturally distilled + <code>TorchAO Int8WeightOnlyConfig()</code> (~0.8 GB – 1.4 GB RAM).</span></div>
+        <div class="kv-row"><span class="kv-key">Plastic Scope:</span><span class="kv-val">Rank $r=8, lpha=16$ LoRA attached <strong>only to the top 8 transformer layers</strong> (<code>q_proj, v_proj</code>).</span></div>
+        <div class="kv-row"><span class="kv-key">Adapter Size:</span><span class="kv-val"><code>~3.2 MB</code> per <code>.safetensors</code> file; single-step gradient update completes in <code>60–110 ms</code>.</span></div>
+      </div>
+    </div>
+
+    <div class="arch-diagram">
+      <div class="arch-tier">
+        <span class="tier-label">Tier 1 — External Harness: Harness² (Self-Improving Agent Orchestrator)</span>
+        <ul class="lean-list">
+          <li><strong>Core Loop:</strong> Refines agent system prompts, synthesizes/patches MCP tools, optimizes memory retrieval policies, and routes subagents across tasks.</li>
+          <li><strong> Four Explicit Domain Tags:</strong> <code>prompt_refinement</code>, <code>tool_synthesis</code>, <code>memory_policy</code>, and <code>subagent_routing</code>.</li>
+          <li><strong>Events Emitted to Tier 2:</strong> Verified task outcomes, prompt diffs, tool execution tracebacks + fixes, and human overrides.</li>
+        </ul>
+      </div>
+
+      <div class="arrow-down">▼ Loopback HTTP / Unix Socket (127.0.0.1) with X-Harness-Token &amp; PII/Injection Firewall ▼</div>
+
+      <div class="arch-tier internal-focus">
+        <span class="tier-label">Tier 2 — Internal Harness (Local Sovereign Edge AI Weight Layer)</span>
+        <ul class="lean-list">
+          <li><strong>Edge Backbone:</strong> Frozen INT8 <code>Qwen3.5-0.8B</code> / <code>1.7B</code> running strictly on-demand (zero background polling).</li>
+          <li><strong>Plastic Memory Slots:</strong> <code>fast_state.safetensors</code> (intraday updates) + <code>long_term_state.safetensors</code> (consolidated rules) + 4 domain task vectors.</li>
+          <li><strong>Primary Bridge (Mode B):</strong> Emits a deterministic 150-token JSON <code>Harness2PolicyEnvelope</code> (prompt patches, tool constraints, subagent routing priors) + runs post-generation residual verification.</li>
+        </ul>
+      </div>
+
+      <div class="arrow-down">▼ Mode B (Primary): JSON PolicyEnvelope + Residual Critic | Mode A (Optional Phase 6): Soft-Tensor Prefix ▼</div>
+
+      <div class="arch-tier">
+        <span class="tier-label">Tier 3 — Target Base Reasoning Models (Frozen Cloud APIs)</span>
+        <ul class="lean-list">
+          <li><strong>Primary Target (Mode B):</strong> Closed-Source Cloud APIs (Claude, OpenAI, Gemini) executing complex multi-step reasoning guided by the local Edge AI's learned policy envelope.</li>
+          <li><strong>Optional Future Target (Mode A):</strong> Local/Cloud Open-Weight Models via direct 64-token soft-prompt embedding injection.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section id="sec-2">
+    <h2><span class="sec-num">02</span> Core Engineering Solutions for Continual Learning &amp; Laptop Efficiency</h2>
+    <p>Explicit architectural mechanisms solving Cold-Start bootstrapping, Contradictory Rule unlearning, Bad-Habit Poisoning, and Battery/Thermal preservation.</p>
+
+    <div class="grid-2">
+      <!-- Solution 1: Cold Start -->
+      <div class="card solution-card">
+        <div class="card-header">
+          <span class="card-title">1. Progressive Anchor Bootstrapping (Cold-Start Fix)</span>
+          <span class="card-id">SOL-COLDSTART</span>
+        </div>
+        <p>Solves how <code>data/anchor_eval.jsonl</code> is populated on Day 1 without blocking sleep cycles:</p>
+        <ul class="lean-list">
+          <li><strong>Stage 1 (Day 1 Seed):</strong> Ships with <code>12</code> immutable core Harness² invariant rules (3 per domain tag) in <code>data/seed_anchors.jsonl</code>.</li>
+          <li><strong>Stage 2 (Auto-Promotion):</strong> Whenever an event in <code>episodic_buffer.db</code> has <code>is_human_correction == 1</code> OR achieves <code>verified_success_count &ge; 3</code> in Harness², it is automatically promoted into <code>anchor_eval.jsonl</code>.</li>
+          <li><strong>Stage 3 (Stratified Cap):</strong> Capped at <code>100</code> total rules (max <code>25</code> per domain tag). When full, new promotions replace the oldest non-seed anchor with the lowest surprise score.</li>
+        </ul>
+      </div>
+
+      <!-- Solution 2: Contradictory Rules -->
+      <div class="card solution-card">
+        <div class="card-header">
+          <span class="card-title">2. Semantic Rule Superseding (Intentional Unlearning)</span>
+          <span class="card-id">SOL-UNLEARN</span>
+        </div>
+        <p>Prevents old rules in <code>anchor_eval.jsonl</code> from blocking newer contradicting workflows:</p>
+        <ul class="lean-list">
+          <li><strong>Conflict Detection:</strong> When a verified rule arrives at <code>POST /v1/observe</code>, compute mean-pooled last-layer embedding cosine similarity against active rules in the same <code>domain_tag</code>.</li>
+          <li><strong>Auto-Deprecation Rule:</strong> If <code>cosine_sim(context_new, context_old) &ge; 0.85</code> AND <code>cosine_sim(action_new, action_old) &lt; 0.50</code> (or if request sets <code>supersedes_previous: true</code>), mark the old SQLite record <code>status = 'DEPRECATED'</code>.</li>
+          <li><strong>Anchor Eviction:</strong> Deprecated rules are immediately purged from <code>anchor_eval.jsonl</code> so Sleep Consolidation distills the new rule without KL/regression conflict.</li>
+        </ul>
+      </div>
+
+      <!-- Solution 3: Contrastive Outcome Filter -->
+      <div class="card solution-card">
+        <div class="card-header">
+          <span class="card-title">3. Two-Stage Contrastive Outcome Filter (Anti-Poisoning)</span>
+          <span class="card-id">SOL-OUTCOME</span>
+        </div>
+        <p>Ensures the Edge AI never trains its weights to memorize tool crashes or broken prompts:</p>
+        <ul class="lean-list">
+          <li><strong>Stage A (Quarantine Raw Failures):</strong> If <code>outcome_status == "FAILURE"</code>, the Surprise Gate computes $S_t$ for telemetry but <strong>locks weight updates</strong> and writes the failure to table <code>pending_failures</code>.</li>
+          <li><strong>Stage B (Verified Resolution Update):</strong> Weight updates in <code>M3</code> execute <strong>only</strong> when <code>outcome_status == "VERIFIED_SUCCESS"</code> or <code>is_human_correction == 1</code>.</li>
+          <li><strong>Contrastive Unlikelihood Step:</strong> If the success resolves a prior <code>pending_failures</code> row, loss includes a negative unlikelihood term: $\mathcal{L}_{total} = \mathcal{L}_{CE}(y_{good} \mid x) + 0.2 \cdot \log P(y_{bad} \mid x)$ to actively push weights away from the failed pattern.</li>
+        </ul>
+      </div>
+
+      <!-- Solution 4: Zero-Drain Thermal & Battery Architecture -->
+      <div class="card solution-card">
+        <div class="card-header">
+          <span class="card-title">4. Silent Zero-Idle &amp; Event-Count Sleep Trigger</span>
+          <span class="card-id">SOL-THERMAL</span>
+        </div>
+        <p>Guarantees cool, quiet laptop operation on battery or wall power:</p>
+        <ul class="lean-list">
+          <li><strong>Zero Background Polling:</strong> No cron loops or background threads. When Harness² is idle, the Internal Harness consumes <code>0.0%</code> CPU and ~1.1 GB static RAM.</li>
+          <li><strong>Event-Count Sleep Trigger (Option B):</strong> Consolidation never wakes the laptop at night. It triggers strictly when <code>unconsolidated_count &ge; 100</code> verified events OR when explicitly called via <code>POST /v1/sleep</code>.</li>
+          <li><strong>Top-8-Layer Micro-LoRA + 4-Thread Cap:</strong> Freezing the bottom 16 layers of the 24-layer Edge model avoids 66% of backward-pass activation storage and keeps CPU updates under <code>110 ms</code> on 4 threads.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section id="sec-3">
+    <h2><span class="sec-num">03</span> Multi-Layer Security &amp; Weight-Integrity Architecture</h2>
+    <p>Because Harness² modifies system prompts, tools, and subagents, the Internal Harness enforces four mandatory security gates before any text or gradient touches disk.</p>
+
+    <div class="grid-2">
+      <div class="card security-card">
+        <div class="card-header">
+          <span class="card-title">SEC-01: Pre-Tokenization Secret &amp; PII Scrubber</span>
+          <span class="card-id">src/security/scrubber.py</span>
+        </div>
+        <ul class="lean-list">
+          <li><strong>Deterministic Regex + Shannon Entropy Filter:</strong> Scans all incoming <code>context_text</code> and <code>expected_action</code> payloads before SQLite storage or tokenization.</li>
+          <li><strong>Redacted Patterns:</strong> OpenAI/Anthropic/Google keys (<code>sk-...</code>, <code>AIza...</code>), GitHub PATs (<code>ghp_...</code>), AWS tokens, Bearer headers, private SSH keys, IPv4 addresses, emails, and high-entropy strings ($H &gt; 4.5$ bits/char over $\ge 24$ chars).</li>
+          <li><strong>Replacement Token:</strong> Replaces matches with canonical placeholder <code>&lt;REDACTED_SECRET&gt;</code> so secrets are never baked into <code>.safetensors</code> weights.</li>
+        </ul>
+      </div>
+
+      <div class="card security-card">
+        <div class="card-header">
+          <span class="card-title">SEC-02: Indirect Prompt-Injection &amp; Weight Firewall</span>
+          <span class="card-id">src/security/firewall.py</span>
+        </div>
+        <ul class="lean-list">
+          <li><strong>Trust-Level Tagging:</strong> Every event carries <code>source_trust: Literal["HUMAN", "HARNESS2_VERIFIED", "UNTRUSTED_EXTERNAL"]</code>.</li>
+          <li><strong>Hard Rule:</strong> Events tagged <code>UNTRUSTED_EXTERNAL</code> (e.g., raw scraped web pages or third-party MCP tool outputs) are <strong>blocked</strong> from opening the Plasticity Gate until validated by a Harness² critic pass.</li>
+          <li><strong>Instruction-Override Scanner:</strong> Blocks weight updates containing adversarial override phrases (e.g., <em>"ignore previous instructions"</em>, <em>"curl / wget external IP"</em>, <em>"disable safety gate"</em>).</li>
+        </ul>
+      </div>
+
+      <div class="card security-card">
+        <div class="card-header">
+          <span class="card-title">SEC-03: Cryptographic Weight Manifest &amp; SafeTensors Lock</span>
+          <span class="card-id">src/security/integrity.py</span>
+        </div>
+        <ul class="lean-list">
+          <li><strong>Zero Pickle Execution:</strong> Strictly forbids <code>torch.load()</code> on <code>.pt</code> or <code>.bin</code> files. All adapters load exclusively via HuggingFace <code>safetensors</code> (memory-mapped, zero arbitrary code execution).</li>
+          <li><strong>SHA-256 Chain of Custody:</strong> Every write to <code>weights/*.safetensors</code> updates <code>weights/manifest.sha256</code>. Before every inference or sleep cycle, the loader verifies the SHA-256 checksum; on mismatch, it halts and restores the last verified snapshot.</li>
+        </ul>
+      </div>
+
+      <div class="card security-card">
+        <div class="card-header">
+          <span class="card-title">SEC-04: WSL2 Loopback Isolation &amp; Token Auth</span>
+          <span class="card-id">src/server.py</span>
+        </div>
+        <ul class="lean-list">
+          <li><strong>Network Binding:</strong> Uvicorn server binds exclusively to <code>127.0.0.1:8420</code> (or local Unix socket <code>/tmp/internal_harness.sock</code> with permissions <code>0600</code>).</li>
+          <li><strong>Shared Secret Header:</strong> Requires HTTP header <code>X-Harness-Token</code> matching the 256-bit random token in <code>.env</code> on every request to <code>/v1/observe</code>, <code>/v1/infer</code>, and <code>/v1/sleep</code>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section id="sec-4">
+    <h2><span class="sec-num">04</span> Six Core Modules (Explicit Specifications &amp; Contracts)</h2>
+
+    <div class="grid-2">
+      <!-- M1 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">M1: Secure Event Ingestor &amp; Normalizer</span>
+          <span class="card-id">mod_ingest</span>
+        </div>
+        <div class="kv-row"><span class="kv-key">File Path:</span><span class="kv-val"><code>src/ingest/normalizer.py</code></span></div>
+        <div class="kv-row"><span class="kv-key">Responsibility:</span><span class="kv-val">Validates Harness² payloads, runs <code>SEC-01</code> (PII/Secret Scrubber) and <code>SEC-02</code> (Injection Firewall), checks semantic conflict against existing rules, and tokenizes up to <code>1024</code> tokens.</span></div>
+        <div class="kv-row"><span class="kv-key">Domain Tags:</span><span class="kv-val"><code>prompt_refinement</code> | <code>tool_synthesis</code> | <code>memory_policy</code> | <code>subagent_routing</code> | <code>general</code></span></div>
+        <div class="kv-row"><span class="kv-key">Output:</span><span class="kv-val"><code>SanitizedEvent(input_ids, labels, domain_tag, outcome_status, supersedes_id)</code></span></div>
+      </div>
+
+      <!-- M2 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">M2: Surprise Sensor &amp; Contrastive Gate</span>
+          <span class="card-id">mod_surprise</span>
+        </div>
+        <div class="kv-row"><span class="kv-key">File Path:</span><span class="kv-val"><code>src/core/surprise_gate.py</code></span></div>
+        <div class="kv-row"><span class="kv-key">Responsibility:</span><span class="kv-val">Computes token-masked cross-entropy loss $S_t$ on <code>target_action_tokens</code> using the INT8 Edge model and enforces the Contrastive Outcome Filter (<code>SOL-OUTCOME</code>).</span></div>
+        <div class="kv-row"><span class="kv-key">Gate Logic:</span><span class="kv-val"><code>OPEN</code> if (<code>outcome_status == "VERIFIED_SUCCESS"</code> AND $S_t \ge 1.85$) OR <code>is_human_correction == True</code>. Quarantines raw failures.</span></div>
+        <div class="kv-row"><span class="kv-key">Output:</span><span class="kv-val"><code>GateDecision(is_open, surprise_score, contrastive_loss_tensor)</code></span></div>
+      </div>
+
+      <!-- M3 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">M3: Top-Layer Micro-LoRA Fast Memory</span>
+          <span class="card-id">mod_fast_weights</span>
+        </div>
+        <div class="kv-row"><span class="kv-key">File Path:</span><span class="kv-val"><code>src/memory/fast_weights.py</code></span></div>
+        <div class="kv-row"><span class="kv-key">Responsibility:</span><span class="kv-val">Updates Rank-8 LoRA adapters on the top 8 transformer layers (<code>q_proj, v_proj</code>) via 1–2 steps of AdamW ($	ext{lr}=1	ext{e-}4$, max grad norm $1.0$).</span></div>
+        <div class="kv-row"><span class="kv-key">Persistence:</span><span class="kv-val">Atomically writes <code>weights/fast_state.safetensors</code> (~3.2 MB) + updates <code>manifest.sha256</code>.</span></div>
+        <div class="kv-row"><span class="kv-key">CPU Budget:</span><span class="kv-val"><code>60–110 ms</code> on 4 threads of i9-13900H; automatic rollback on <code>NaN/Inf</code>.</span></div>
+      </div>
+
+      <!-- M4 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">M4: Episodic SQLite &amp; Task-Vector Bank</span>
+          <span class="card-id">mod_bank</span>
+        </div>
+        <div class="kv-row"><span class="kv-key">File Path:</span><span class="kv-val"><code>src/memory/vector_bank.py</code></span></div>
+        <div class="kv-row"><span class="kv-key">Responsibility:</span><span class="kv-val">Manages <code>episodic_buffer.db</code>, handles rule deprecation (<code>SOL-UNLEARN</code>), auto-promotes anchors (<code>SOL-COLDSTART</code>), and merges domain task vectors ($\Delta W = \sum w_k \Delta W_k$).</span></div>
+        <div class="kv-row"><span class="kv-key">Domain Files:</span><span class="kv-val"><code>weights/domains/{prompt_refinement,tool_synthesis,memory_policy,subagent_routing}.safetensors</code></span></div>
+      </div>
+
+      <!-- M5 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">M5: Event-Count Sleep Consolidator</span>
+          <span class="card-id">mod_sleep</span>
+        </div>
+        <div class="kv-row"><span class="kv-key">File Path:</span><span class="kv-val"><code>src/consolidation/sleep_daemon.py</code></span></div>
+        <div class="kv-row"><span class="kv-key">Responsibility:</span><span class="kv-val">Triggered when <code>unconsolidated_count &ge; 100</code> or via <code>POST /v1/sleep</code>. Distills <code>fast_state</code> into <code>long_term_state</code> using 50% new events + 50% active anchors with KL tether ($\lambda = 0.4$).</span></div>
+        <div class="kv-row"><span class="kv-key">Verification Gate:</span><span class="kv-val">Requires $\ge 98\%$ pass rate on active <code>anchor_eval.jsonl</code> before committing weights.</span></div>
+      </div>
+
+      <!-- M6 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">M6: Mode-B Closed-API Policy Bridge &amp; Critic</span>
+          <span class="card-id">mod_bridge</span>
+        </div>
+        <div class="kv-row"><span class="kv-key">File Path:</span><span class="kv-val"><code>src/bridge/closed_api_bridge.py</code></span></div>
+        <div class="kv-row"><span class="kv-key">Primary Path (Mode B):</span><span class="kv-val">Generates a 150-token JSON <code>Harness2PolicyEnvelope</code> steering the Cloud API's system prompt, tool selection, and subagent routing, followed by a post-inference Surprise Gate verification pass.</span></div>
+        <div class="kv-row"><span class="kv-key">Optional Path (Mode A):</span><span class="kv-val"><code>src/bridge/open_latent_bridge.py</code> (Deferred to Optional Phase 6).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5 -->
+  <section id="sec-5">
+    <h2><span class="sec-num">05</span> Explicit File Layout, SQLite Schema &amp; Harness² JSON Contracts</h2>
+
+    <h3>5.1 Project Directory Tree (WSL2 Ubuntu)</h3>
+    <pre>internal-harness/
+├── .env                             # X_HARNESS_TOKEN, CLOUD_API_KEYS (chmod 0600)
+├── config/
+│   └── harness_config.yaml          # Thread caps, INT8 flags, thresholds, domain weights
+├── data/
+│   ├── episodic_buffer.db           # SQLite store (active rules, deprecated rules, pending_failures)
+│   ├── seed_anchors.jsonl           # 12 immutable Day-1 Harness² baseline rules
+│   ├── anchor_eval.jsonl            # Auto-promoted golden test suite (capped at 100 active rules)
+│   └── telemetry.jsonl              # Append-only audit &amp; surprise trajectory log
+├── weights/
+│   ├── manifest.sha256              # Cryptographic SHA-256 hashes of all .safetensors files
+│   ├── backbone/                    # Frozen Qwen3.5-0.8B / Qwen3-1.7B INT8 weights
+│   ├── fast_state.safetensors       # Intraday Rank-8 top-8-layer LoRA (~3.2 MB)
+│   ├── long_term_state.safetensors  # Consolidated stable Rank-8 LoRA (~3.2 MB)
+│   ├── snapshots/                   # Last 5 verified weight rollbacks
+│   └── domains/
+│       ├── prompt_refinement.safetensors
+│       ├── tool_synthesis.safetensors
+│       ├── memory_policy.safetensors
+│       └── subagent_routing.safetensors
+└── src/
+    ├── security/
+    │   ├── scrubber.py              # SEC-01: Regex + Entropy PII/Secret redactor
+    │   ├── firewall.py              # SEC-02: Trust-level &amp; prompt-injection guard
+    │   └── integrity.py             # SEC-03: SafeTensors SHA-256 verifier
+    ├── ingest/normalizer.py         # M1: Event validation &amp; semantic conflict check
+    ├── core/
+    │   ├── backbone.py              # INT8 Edge model loader with 4-thread CPU cap
+    │   ├── surprise_gate.py         # M2: Token-masked loss &amp; contrastive outcome gate
+    │   └── telemetry.py             # Metrics &amp; audit logger
+    ├── memory/
+    │   ├── fast_weights.py          # M3: Top-8-layer LoRA AdamW single-step updater
+    │   └── vector_bank.py           # M4: SQLite manager, anchor promoter &amp; task arithmetic
+    ├── consolidation/
+    │   └── sleep_daemon.py          # M5: 100-event triggered KL sleep distillation
+    ├── bridge/
+    │   ├── closed_api_bridge.py     # M6 (Primary Mode B): Harness² PolicyEnvelope + Critic
+    │   └── open_latent_bridge.py    # M6 (Optional Mode A): MLP soft-prompt tensor bridge
+    └── server.py                    # FastAPI loopback server (127.0.0.1:8420)</pre>
+
+    <h3>5.2 Explicit SQLite Schema (<code>data/episodic_buffer.db</code>)</h3>
+    <pre>CREATE TABLE IF NOT EXISTS episodic_events (
+    event_id TEXT PRIMARY KEY,            -- UUID v4
+    created_at INTEGER NOT NULL,          -- Unix epoch milliseconds
+    domain_tag TEXT NOT NULL,             -- 'prompt_refinement'|'tool_synthesis'|'memory_policy'|'subagent_routing'|'general'
+    source_trust TEXT NOT NULL,           -- 'HUMAN'|'HARNESS2_VERIFIED'|'UNTRUSTED_EXTERNAL'
+    outcome_status TEXT NOT NULL,         -- 'VERIFIED_SUCCESS'|'FAILURE'
+    context_text TEXT NOT NULL,           -- Scrubbed input state / task context
+    expected_action TEXT NOT NULL,        -- Scrubbed verified refinement or action
+    context_embedding BLOB NOT NULL,      -- Float32 mean-pooled vector for conflict check
+    surprise_score REAL NOT NULL,         -- Cross-entropy loss S_t at ingestion
+    is_human_correction INTEGER NOT NULL, -- 1 if human override, 0 otherwise
+    verified_success_count INTEGER DEFAULT 1,
+    status TEXT DEFAULT 'ACTIVE',         -- 'ACTIVE'|'DEPRECATED'
+    supersedes_event_id TEXT DEFAULT NULL,-- Points to older event_id if replaced
+    consolidated INTEGER DEFAULT 0        -- 0 = pending sleep, 1 = merged into long_term
+);
+
+CREATE TABLE IF NOT EXISTS pending_failures (
+    failure_id TEXT PRIMARY KEY,
+    created_at INTEGER NOT NULL,
+    domain_tag TEXT NOT NULL,
+    context_text TEXT NOT NULL,
+    failed_action TEXT NOT NULL,          -- Stored for contrastive unlikelihood penalty once resolved
+    resolved_by_event_id TEXT DEFAULT NULL
+);</pre>
+
+    <h3>5.3 Mode-B Harness² Policy Envelope Contract (<code>closed_api_bridge.py</code>)</h3>
+    <pre>{
+  "request_id": "h2_req_4091",
+  "domain_tag": "subagent_routing",
+  "active_adapter_hash": "sha256:8f94e2a...",
+  "harness2_policy_residual": {
+    "system_prompt_patches": [
+      "When decomposing database migration tasks, require explicit schema diff output before code generation."
+    ],
+    "tool_synthesis_constraints": [
+      "Prefer read-only SQLite inspection tools before invoking write_file_tool."
+    ],
+    "subagent_routing_rules": [
+      "Route verification subtasks to CriticSubagent with temperature=0.0."
+    ],
+    "avoid_failure_patterns": [
+      "Do not spawn parallel writer subagents on the same file path."
+    ]
+  },
+  "post_verification_threshold": 1.60
+}</pre>
+  </section>
+
+  <!-- SECTION 6 -->
+  <section id="sec-6">
+    <h2><span class="sec-num">06</span> Modular Task Breakdown (Step-by-Step Build Plan)</h2>
+    <p>
+      Divided into <strong>5 Core Build Phases (Tasks T01–T15)</strong> for the primary Mode-B Harness² architecture, plus <strong>Phase 6 (Task T16)</strong> as an optional future expansion for Mode-A Open-Model tensor injection.
+    </p>
+
+    <!-- PHASE 1 -->
+    <div class="phase-block">
+      <div class="phase-banner">
+        <h3>Phase 1: WSL2 Ultra-Lean Edge Backbone &amp; Security Foundation</h3>
+        <span class="phase-meta">Tasks T01 – T03 | Target: Silent &lt;1.5GB RAM Footprint</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 65px;">ID</th>
+            <th style="width: 205px;">Task Name</th>
+            <th>Explicit Implementation Specification</th>
+            <th style="width: 210px;">Input / Output Artifacts</th>
+            <th style="width: 210px;">Verification Criterion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>T01</code></td>
+            <td><strong>INT8 Edge Model Loader &amp; Thread Capper</strong></td>
+            <td>
+              Configure WSL2 environment. Load <code>Qwen/Qwen3.5-0.8B</code> (or <code>Qwen3-1.7B</code>) quantized dynamically with <code>torchao.quantization.Int8WeightOnlyConfig()</code>. Set <code>torch.set_num_threads(4)</code> and freeze 100% of base weights.
+            </td>
+            <td>
+              <strong>In:</strong> <code>harness_config.yaml</code><br/>
+              <strong>Out:</strong> <code>src/core/backbone.py</code>
+            </td>
+            <td>RAM usage $\le 1.5	ext{ GB}$; idle CPU $= 0.0\%$; forward pass uses $\le 4$ CPU cores.</td>
+          </tr>
+          <tr>
+            <td><code>T02</code></td>
+            <td><strong>Top-8-Layer Micro-LoRA &amp; SHA-256 Lock</strong></td>
+            <td>
+              Attach two named Rank-8 LoRA adapters (<code>"long_term"</code> and <code>"fast_state"</code>, $r=8, lpha=16$) <strong>strictly to the top 8 transformer layers</strong> (<code>q_proj, v_proj</code>). Implement <code>integrity.py</code> to compute and verify SHA-256 hashes in <code>weights/manifest.sha256</code>.
+            </td>
+            <td>
+              <strong>In:</strong> Frozen INT8 Backbone<br/>
+              <strong>Out:</strong> <code>weights/fast_state.safetensors</code>, <code>src/security/integrity.py</code>
+            </td>
+            <td>Each <code>.safetensors</code> file is $\le 4	ext{ MB}$; tampered weight file raises <code>IntegrityError</code> immediately.</td>
+          </tr>
+          <tr>
+            <td><code>T03</code></td>
+            <td><strong>PII Scrubber, Injection Firewall &amp; SQLite Init</strong></td>
+            <td>
+              Implement <code>scrubber.py</code> (regex + entropy redaction), <code>firewall.py</code> (blocks <code>UNTRUSTED_EXTERNAL</code> and override strings), and initialize <code>episodic_buffer.db</code> + <code>seed_anchors.jsonl</code> (12 baseline Harness² rules).
+            </td>
+            <td>
+              <strong>In:</strong> Raw Harness² Event JSON<br/>
+              <strong>Out:</strong> <code>scrubber.py</code>, <code>firewall.py</code>, <code>episodic_buffer.db</code>
+            </td>
+            <td>100% of synthetic API keys, emails, and prompt-injection payloads are scrubbed/blocked in unit tests.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase-block">
+      <div class="phase-banner">
+        <h3>Phase 2: Contrastive Surprise Gate &amp; Silent Online Learning</h3>
+        <span class="phase-meta">Tasks T04 – T06 | Target: 60–110ms Verified Weight Updates</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 65px;">ID</th>
+            <th style="width: 205px;">Task Name</th>
+            <th>Explicit Implementation Specification</th>
+            <th style="width: 210px;">Input / Output Artifacts</th>
+            <th style="width: 210px;">Verification Criterion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>T04</code></td>
+            <td><strong>Token-Masked Surprise &amp; Failure Quarantine</strong></td>
+            <td>
+              Mask <code>context_tokens</code> with <code>-100</code> to compute loss $S_t$ strictly on <code>expected_action</code>. If <code>outcome_status == "FAILURE"</code>, insert into <code>pending_failures</code> and return <code>GateDecision(is_open=False)</code>.
+            </td>
+            <td>
+              <strong>In:</strong> <code>SanitizedEvent</code><br/>
+              <strong>Out:</strong> <code>src/core/surprise_gate.py</code>
+            </td>
+            <td>Raw error tracebacks never trigger gradient updates and are stored in <code>pending_failures</code>.</td>
+          </tr>
+          <tr>
+            <td><code>T05</code></td>
+            <td><strong>Contrastive Micro-LoRA Updater</strong></td>
+            <td>
+              When <code>GateDecision.is_open == True</code>, run 1–2 steps of AdamW ($	ext{lr}=1	ext{e-}4$) on <code>fast_state</code>. If paired with a prior row in <code>pending_failures</code>, add unlikelihood penalty $+0.2 \cdot \log P(y_{bad} \mid x)$.
+            </td>
+            <td>
+              <strong>In:</strong> <code>contrastive_loss_tensor</code><br/>
+              <strong>Out:</strong> <code>src/memory/fast_weights.py</code>
+            </td>
+            <td>Update completes in $\le 110	ext{ ms}$ on i9 CPU; surprise score $S_t$ on new rule drops $\ge 35\%$ while $P(y_{bad})$ decreases.</td>
+          </tr>
+          <tr>
+            <td><code>T06</code></td>
+            <td><strong>Semantic Rule Superseding &amp; Rollback Guard</strong></td>
+            <td>
+              Compare incoming event embedding against active rules in the same <code>domain_tag</code>. If context similarity $\ge 0.85$ and action similarity $&lt; 0.50$, mark old rule <code>DEPRECATED</code> and evict from <code>anchor_eval.jsonl</code>. Revert weights on <code>NaN/Inf</code>.
+            </td>
+            <td>
+              <strong>In:</strong> Event Embedding + Active DB<br/>
+              <strong>Out:</strong> Conflict resolver in <code>vector_bank.py</code>
+            </td>
+            <td>Submitting an updated Harness² rule automatically deprecates the contradicted old rule in SQLite.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase-block">
+      <div class="phase-banner">
+        <h3>Phase 3: Primary Mode-B Bridge for Harness² (Closed Cloud APIs)</h3>
+        <span class="phase-meta">Tasks T07 – T09 | Target: Self-Improving Prompts, Tools &amp; Subagents</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 65px;">ID</th>
+            <th style="width: 205px;">Task Name</th>
+            <th>Explicit Implementation Specification</th>
+            <th style="width: 210px;">Input / Output Artifacts</th>
+            <th style="width: 210px;">Verification Criterion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>T07</code></td>
+            <td><strong>Harness² PolicyEnvelope Generator (Mode B)</strong></td>
+            <td>
+              Run the adapted Edge model to emit the 150-token JSON <code>Harness2PolicyEnvelope</code> (Section 5.3) containing learned system prompt patches, tool constraints, and subagent routing rules.
+            </td>
+            <td>
+              <strong>In:</strong> Harness² Task Context<br/>
+              <strong>Out:</strong> <code>src/bridge/closed_api_bridge.py</code>
+            </td>
+            <td>Generates valid JSON schema in $\le 450	ext{ ms}$ on i9 CPU with zero prompt-token bloat over time.</td>
+          </tr>
+          <tr>
+            <td><code>T08</code></td>
+            <td><strong>Post-Inference Residual Critic Loop</strong></td>
+            <td>
+              Score the Cloud API's candidate response or tool call using the local Surprise Gate. If $S_t &gt; 1.60$, return the exact high-loss token spans to Harness² for 1 automatic self-correction pass.
+            </td>
+            <td>
+              <strong>In:</strong> Cloud LLM Draft Output<br/>
+              <strong>Out:</strong> Critic method in <code>closed_api_bridge.py</code>
+            </td>
+            <td>Catches and corrects simulated violations of learned Harness² routing/tool rules before execution.</td>
+          </tr>
+          <tr>
+            <td><code>T09</code></td>
+            <td><strong>Harness² Adapter Hook &amp; Domain Router</strong></td>
+            <td>
+              Build a lightweight client wrapper for Harness² that tags requests with <code>prompt_refinement</code>, <code>tool_synthesis</code>, <code>memory_policy</code>, or <code>subagent_routing</code> and activates the matching domain adapter.
+            </td>
+            <td>
+              <strong>In:</strong> Harness² Task Metadata<br/>
+              <strong>Out:</strong> <code>src/bridge/harness2_client.py</code>
+            </td>
+            <td>End-to-end call from Harness² $	o$ Internal Harness $	o$ Cloud API completes seamlessly.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase-block">
+      <div class="phase-banner">
+        <h3>Phase 4: Event-Count Sleep Consolidation &amp; Progressive Anchors</h3>
+        <span class="phase-meta">Tasks T10 – T12 | Target: Zero Forgetting &amp; Zero Nightly Wakeups</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 65px;">ID</th>
+            <th style="width: 205px;">Task Name</th>
+            <th>Explicit Implementation Specification</th>
+            <th style="width: 210px;">Input / Output Artifacts</th>
+            <th style="width: 210px;">Verification Criterion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>T10</code></td>
+            <td><strong>Auto-Anchor Promoter &amp; 50/50 Replay Sampler</strong></td>
+            <td>
+              Promote verified human corrections and 3x-verified Harness² refinements into <code>anchor_eval.jsonl</code> (capped at 100 active rules, excluding <code>DEPRECATED</code>). Build 1:1 sampler mixing new unconsolidated events with active anchors.
+            </td>
+            <td>
+              <strong>In:</strong> <code>episodic_buffer.db</code>, <code>seed_anchors.jsonl</code><br/>
+              <strong>Out:</strong> Sampler in <code>sleep_daemon.py</code>
+            </td>
+            <td>Cold-start works from Day 1 with 12 seeds and scales automatically up to 100 stratified anchors.</td>
+          </tr>
+          <tr>
+            <td><code>T11</code></td>
+            <td><strong>100-Event Triggered KL Sleep Distillation</strong></td>
+            <td>
+              When <code>unconsolidated_count &ge; 100</code> (or manual <code>POST /v1/sleep</code>), distill <code>fast_state</code> into <code>long_term_state</code> over 3 epochs with KL tether ($\lambda=0.4$). Require $\ge 98\%$ accuracy on active <code>anchor_eval.jsonl</code>.
+            </td>
+            <td>
+              <strong>In:</strong> Replay Batch + Prior Weights<br/>
+              <strong>Out:</strong> Updated <code>long_term_state.safetensors</code>
+            </td>
+            <td>Consolidation finishes in $&lt; 90	ext{ sec}$ on 4 i9 threads; retains $\ge 98\%$ anchor accuracy.</td>
+          </tr>
+          <tr>
+            <td><code>T12</code></td>
+            <td><strong>Task-Vector Arithmetic Merger</strong></td>
+            <td>
+              Implement fast linear combination of the 4 Harness² domain adapters: $\Delta W_{task} = \sum_{k=1}^{4} w_k \Delta W_k$ in <code>vector_bank.py</code>.
+            </td>
+            <td>
+              <strong>In:</strong> <code>weights/domains/*.safetensors</code><br/>
+              <strong>Out:</strong> <code>src/memory/vector_bank.py</code>
+            </td>
+            <td>Blending two 3.2 MB domain adapters executes in $&lt; 5	ext{ ms}$ in RAM.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PHASE 5 -->
+    <div class="phase-block">
+      <div class="phase-banner">
+        <h3>Phase 5: Hardened Loopback Daemon &amp; Telemetry</h3>
+        <span class="phase-meta">Tasks T13 – T15 | Target: Production WSL2 Service</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 65px;">ID</th>
+            <th style="width: 205px;">Task Name</th>
+            <th>Explicit Implementation Specification</th>
+            <th style="width: 210px;">Input / Output Artifacts</th>
+            <th style="width: 210px;">Verification Criterion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>T13</code></td>
+            <td><strong>Loopback FastAPI Server with Token Auth</strong></td>
+            <td>
+              Bind FastAPI strictly to <code>127.0.0.1:8420</code>. Enforce <code>X-Harness-Token</code> middleware on <code>POST /v1/observe</code>, <code>POST /v1/infer</code>, and <code>POST /v1/sleep</code>.
+            </td>
+            <td>
+              <strong>In:</strong> <code>.env</code> + HTTP Requests<br/>
+              <strong>Out:</strong> <code>src/server.py</code>
+            </td>
+            <td>Unauthenticated requests or external network requests are rejected with <code>401/403</code>.</td>
+          </tr>
+          <tr>
+            <td><code>T14</code></td>
+            <td><strong>Async RWLock &amp; 5-Snapshot Ring Buffer</strong></td>
+            <td>
+              Protect weight updates with <code>asyncio.RWLock</code> and maintain a rolling 5-version backup in <code>weights/snapshots/</code> with verified SHA-256 hashes.
+            </td>
+            <td>
+              <strong>In:</strong> Concurrent API calls<br/>
+              <strong>Out:</strong> Concurrency &amp; snapshot manager
+            </td>
+            <td>Zero corrupted files or race conditions under concurrent Harness² subagent requests.</td>
+          </tr>
+          <tr>
+            <td><code>T15</code></td>
+            <td><strong>Telemetry &amp; Security Audit Logger</strong></td>
+            <td>
+              Log surprise scores, deprecated rule IDs, scrubbed secret counts, and blocked injection attempts to <code>data/telemetry.jsonl</code>.
+            </td>
+            <td>
+              <strong>In:</strong> Runtime &amp; security events<br/>
+              <strong>Out:</strong> <code>src/core/telemetry.py</code>
+            </td>
+            <td>Repeated Harness² refinements show monotonically decreasing surprise scores in <code>telemetry.jsonl</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PHASE 6 (OPTIONAL) -->
+    <div class="phase-block">
+      <div class="phase-banner optional">
+        <h3>Phase 6 (Optional Future Expansion): Mode-A Open-Model Soft-Prompt Tensor Bridge</h3>
+        <span class="phase-meta">Task T16 | Deferred Until Needed for Local/Cloud Open-Weight LLMs</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 65px;">ID</th>
+            <th style="width: 205px;">Task Name</th>
+            <th>Explicit Implementation Specification</th>
+            <th style="width: 210px;">Input / Output Artifacts</th>
+            <th style="width: 210px;">Verification Criterion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>T16</code></td>
+            <td><strong>Open-Model Soft-Prompt MLP Tensor Bridge</strong></td>
+            <td>
+              Build a 2-layer MLP (<code>weights/bridge_mlp.safetensors</code>) projecting the Edge model's final hidden state ($d_{edge}$) into $K=64$ continuous virtual token embeddings ($64 	imes d_{target}$) injected directly into an Open-Weight Target Model's <code>inputs_embeds</code> layer.
+            </td>
+            <td>
+              <strong>In:</strong> Edge Hidden States<br/>
+              <strong>Out:</strong> <code>src/bridge/open_latent_bridge.py</code>
+            </td>
+            <td>Target open model accepts <code>[batch, 64 + seq_len, d_target]</code> tensor and adheres to learned constraints without text prompts.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECTION 7 -->
+  <section id="sec-7">
+    <h2><span class="sec-num">07</span> System Verification &amp; Acceptance Matrix</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Test ID</th>
+          <th>Test Name</th>
+          <th>Explicit Test Procedure</th>
+          <th>Pass Threshold</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>ACC-01</code></td>
+          <td><strong>Single-Shot Harness² Rule Adaptation</strong></td>
+          <td>Submit a verified <code>prompt_refinement</code> or <code>tool_synthesis</code> fix via <code>POST /v1/observe</code>, then call <code>POST /v1/infer</code> on a related task.</td>
+          <td>Surprise score drops $\ge 35\%$; generated <code>Harness2PolicyEnvelope</code> includes the new constraint on the first try.</td>
+        </tr>
+        <tr>
+          <td><code>ACC-02</code></td>
+          <td><strong>Contrastive Failure Immunity</strong></td>
+          <td>Send 10 raw tool crash tracebacks (<code>outcome_status="FAILURE"</code>) followed by 1 verified fix (<code>outcome_status="VERIFIED_SUCCESS"</code>).</td>
+          <td>Zero weight updates occur on the 10 crashes; single update on the fix lowers probability of the failed action.</td>
+        </tr>
+        <tr>
+          <td><code>ACC-03</code></td>
+          <td><strong>Intentional Rule Superseding</strong></td>
+          <td>Teach Rule A (promoted to anchor), then submit contradicting Rule B with <code>is_human_correction=1</code> and run <code>POST /v1/sleep</code>.</td>
+          <td>Rule A is marked <code>DEPRECATED</code>, evicted from anchors, and Sleep Consolidation succeeds with $\ge 98\%$ accuracy on active anchors.</td>
+        </tr>
+        <tr>
+          <td><code>ACC-04</code></td>
+          <td><strong>Silent Thermal &amp; Battery Compliance</strong></td>
+          <td>Run 50 sequential <code>/v1/observe</code> and <code>/v1/infer</code> cycles on WSL2 (Intel i9-13900H) followed by 5 minutes of idle time.</td>
+          <td>RAM stays $\le 1.5	ext{ GB}$, active CPU threads $\le 4$, update latency $\le 110	ext{ ms}$, and idle CPU returns to $0.0\%$.</td>
+        </tr>
+        <tr>
+          <td><code>ACC-05</code></td>
+          <td><strong>Security Scrubbing &amp; Injection Block</strong></td>
+          <td>Send events containing live-format API keys (`sk-...`) and an untrusted external prompt injection payload.</td>
+          <td>100% of secrets are replaced with <code>&lt;REDACTED_SECRET&gt;</code>; untrusted injection is blocked before reaching the Surprise Gate.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</body>
+</html>

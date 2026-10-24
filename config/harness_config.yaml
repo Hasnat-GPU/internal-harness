@@ -1,0 +1,143 @@
+# =============================================================================
+# Internal Harness v2.0 — runtime configuration
+# Source of truth: Blueprint_Backend.html. Every value is taken from the blueprint
+# unless its comment starts with "impl:" (an implementation choice the blueprint
+# leaves open). Loaded with yaml.safe_load by src/config.py.
+# =============================================================================
+
+paths:
+  env_file: .env
+  episodic_db: data/episodic_buffer.db
+  seed_anchors: data/seed_anchors.jsonl
+  anchor_eval: data/anchor_eval.jsonl
+  telemetry: data/telemetry.jsonl
+  backbone_dir: weights/backbone
+  fast_state: weights/fast_state.safetensors
+  long_term_state: weights/long_term_state.safetensors
+  snapshots_dir: weights/snapshots
+  domains_dir: weights/domains
+  manifest: weights/manifest.sha256
+
+# --- Hardware & thermal caps (AGENTS.md §2, SOL-THERMAL) ----------------------
+hardware:
+  torch_num_threads: 4            # torch.set_num_threads(4): silent & cool
+  max_ram_gb: 1.5                 # whole-process budget
+  background_polling: false       # 0.0% idle CPU: no cron loops, no background threads
+
+# --- Edge backbone (T01) -------------------------------------------------------
+backbone:
+  model_id: Qwen/Qwen3.5-0.8B
+  revision: 2fc06364715b967f1860aea9cf38778875588b17   # impl: pinned HF commit (2026-03-02)
+  fallback_model_ids: [Qwen/Qwen3-1.7B, Qwen/Qwen2.5-0.5B]
+  int8: true
+  quantization: Int8WeightOnlyConfig                   # torchao.quantization.Int8WeightOnlyConfig()
+  freeze_base_weights: true
+  tokenizer_file: tokenizer.json                       # impl: read from paths.backbone_dir
+  tokenizer_sha256: 5f9e4d4901a92b997e463c1f46055088b6cca5ca61a6522d1b9f64c4bb81cb42  # impl: HF LFS oid at the pinned revision
+  allow_download: true                                 # impl: fetch tokenizer.json from the pinned revision if missing
+  chat_format:                                         # impl: mirrors the model's chat_template.jinja (non-thinking mode)
+    system: "<|im_start|>system\n{system}<|im_end|>\n"
+    user: "<|im_start|>user\n{content}<|im_end|>\n"
+    assistant_prefix: "<|im_start|>assistant\n<think>\n\n</think>\n\n"
+    assistant_suffix: "<|im_end|>"
+
+# --- Plastic Micro-LoRA (T02, M3) ----------------------------------------------
+lora:
+  rank: 8
+  alpha: 16
+  target_modules: [q_proj, v_proj]
+  top_n_layers: 8
+  adapters: [long_term, fast_state]
+  max_file_mb: 4
+
+# --- M1: Secure Event Ingestor & Normalizer (T03) ------------------------------
+ingest:
+  max_seq_len: 1024                 # "tokenizes up to 1024 tokens"
+  max_field_chars: 32000            # impl: larger context_text / expected_action is rejected (DoS guard)
+  min_context_tokens: 256           # impl: context tokens kept when a long action competes for the budget
+  context_truncation: left          # impl: left = keep the tail of a long context (closest to the action)
+  system_prompt: "You are the Harness² Internal Harness policy memory. Domain: {domain_tag}."
+  domain_tags: [prompt_refinement, tool_synthesis, memory_policy, subagent_routing, general]
+  source_trust_levels: [HUMAN, HARNESS2_VERIFIED, UNTRUSTED_EXTERNAL]
+  outcome_statuses: [VERIFIED_SUCCESS, FAILURE]
+
+# --- Security gates (SEC-01 .. SEC-04) -----------------------------------------
+security:
+  scrubber:                                    # SEC-01
+    replacement_token: "<REDACTED_SECRET>"
+    entropy_threshold_bits: 4.5
+    entropy_min_length: 24
+    hex_entropy_threshold_bits: 3.0            # impl: hex tops out at 4.0 bits/char, so 4.5 can never flag it
+    hex_min_length: 32                         # impl: >= 128-bit hex tokens (e.g. X_HARNESS_TOKEN)
+    generated_max_length: 64                   # impl: 24-63 char tokens also checked with bias-corrected entropy...
+    generated_min_class_switch: 0.40           # impl: ...when >= 40% of adjacent chars switch class (see scrubber.py)
+  firewall:                                    # SEC-02
+    trusted_sources: [HUMAN, HARNESS2_VERIFIED]
+    blocked_sources: [UNTRUSTED_EXTERNAL]
+  integrity:                                   # SEC-03
+    hash_algorithm: sha256
+    allow_pickle: false                        # never torch.load() .pt / .bin
+  server:                                      # SEC-04
+    host: 127.0.0.1
+    port: 8420
+    unix_socket: /tmp/internal_harness.sock
+    unix_socket_mode: "0600"
+    token_env_var: X_HARNESS_TOKEN
+    token_bits: 256
+    protected_endpoints: [/v1/observe, /v1/infer, /v1/sleep]
+
+# --- M2: Surprise Sensor & Contrastive Gate (T04) ------------------------------
+surprise_gate:
+  open_threshold: 1.85              # OPEN iff (VERIFIED_SUCCESS and S_t >= 1.85) or is_human_correction
+  label_mask_id: -100
+
+# --- M3: Top-layer Micro-LoRA fast memory (T05) --------------------------------
+fast_weights:
+  optimizer: AdamW
+  lr: 1.0e-4
+  max_grad_norm: 1.0
+  min_steps: 1
+  max_steps: 2
+  unlikelihood_weight: 0.2          # L = CE(y_good | x) + 0.2 * log P(y_bad | x)
+  latency_budget_ms: 110
+  min_surprise_drop: 0.35
+
+# --- SOL-UNLEARN: semantic rule superseding (T06) -------------------------------
+unlearning:
+  context_similarity_min: 0.85
+  action_similarity_max: 0.50
+
+# --- SOL-COLDSTART: progressive anchors (T10) ----------------------------------
+anchors:
+  seed_count: 12
+  seeds_per_domain: 3
+  max_active: 100
+  max_per_domain: 25
+  promote_min_verified_success: 3
+
+# --- M5: Event-count sleep consolidation (T11) ---------------------------------
+sleep:
+  trigger_unconsolidated_count: 100
+  replay_new_fraction: 0.5
+  kl_lambda: 0.4
+  epochs: 3
+  min_anchor_accuracy: 0.98
+  max_duration_sec: 90
+
+# --- M6: Mode-B policy bridge & critic (T07, T08) ------------------------------
+bridge:
+  envelope_max_tokens: 150
+  envelope_latency_budget_ms: 450
+  post_verification_threshold: 1.60
+  max_self_corrections: 1
+
+# --- Task-vector arithmetic (T12): dW_task = sum_k w_k * dW_k --------------------
+domain_weights:                     # impl: neutral default blend
+  prompt_refinement: 0.25
+  tool_synthesis: 0.25
+  memory_policy: 0.25
+  subagent_routing: 0.25
+
+# --- 5-snapshot ring buffer (T14) ------------------------------------------------
+snapshots:
+  ring_size: 5
