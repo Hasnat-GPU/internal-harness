@@ -87,7 +87,6 @@ Anti-poisoning also requires quarantining failures, learning only from verified 
 | [UI_UX_Frontend.html](UI_UX_Frontend.html) | The single-file **Harness² Companion / Flight Deck UI**: Daylight Studio and Dark Slate, Guided Story Player, an interactive simulated sandbox, and a one-click technical X-ray. Tailwind styling loads from a CDN, so internet access is needed for the intended appearance. |
 | [Blueprint_Backend.html](Blueprint_Backend.html) | Complete v2.0 system specification, schemas, contracts, and the **15-task core build plan**; optional T16 describes a future tensor bridge. |
 | [AGENTS.md](AGENTS.md) | Spec-driven agent rules, security boundaries, and hardware limits. |
-| [START_HERE_PROMPTS.txt](START_HERE_PROMPTS.txt) | Brick-by-brick implementation prompts. Request individual Task IDs and follow the stricter one-task-at-a-time rule in `AGENTS.md`. |
 | [config/harness_config.yaml](config/harness_config.yaml) | Central runtime settings and blueprint acceptance targets. |
 | [data/seed_anchors.jsonl](data/seed_anchors.jsonl) | Twelve baseline rules across the four Harness² domains. |
 | [scripts/make_demo_video.py](scripts/make_demo_video.py) | Reproducible narrated recording with runtime-only overlays; leaves the frontend HTML unchanged. |
@@ -101,9 +100,9 @@ git clone https://github.com/Hasnat-GPU/internal-harness.git
 cd internal-harness
 ```
 
-**Continue engineering:** read `AGENTS.md`, then the blueprint and prompts. Implement one requested Task ID at a time and prove its verification criterion before moving on. The supported backend target is **Python 3.11+ on WSL2 Ubuntu 24.04, CPU only**. `requirements.txt` includes future-phase dependencies; the full model stack is not validated by this release.
+**Continue engineering:** read `AGENTS.md`, then the blueprint. Implement one requested Task ID at a time and prove its verification criterion before moving on. The supported backend target is **Python 3.11+ on WSL2 Ubuntu 24.04, CPU only**. `requirements.txt` includes future-phase dependencies; the full model stack is not validated by this release.
 
-The existing T03 test suite is `tests/test_phase1.py`. It expects the local scaffold from the T03 setup prompt: a generated private `.env`, initialized SQLite database, blueprint directories, and the pinned tokenizer cache. Those generated/private artifacts are intentionally excluded from Git. Run it in the configured WSL environment:
+The existing T03 test suite is `tests/test_phase1.py`. It expects the local T03 scaffold: a generated private `.env`, initialized SQLite database, blueprint directories, and the pinned tokenizer cache. Those generated/private artifacts are intentionally excluded from Git. Run it in the configured WSL environment:
 
 ```bash
 .venv/bin/python -m pytest tests/test_phase1.py

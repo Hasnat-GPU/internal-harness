@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class PublicationTest(unittest.TestCase):
     def test_private_artifacts_are_ignored(self):
-        paths = ['.env', '.env.production', 'module.pyc', '__pycache__/x.pyc',
+        paths = ['START_HERE_PROMPTS.txt', '.env', '.env.production', 'module.pyc', '__pycache__/x.pyc',
                  '.venv/bin/python', 'venv/bin/python', 'node_modules/test/index.js',
                  'weights/backbone/tokenizer.json', 'weights/fast_state.safetensors',
                  'data/episodic_buffer.db', 'data/episodic_buffer.db-journal',
@@ -25,7 +25,7 @@ class PublicationTest(unittest.TestCase):
         self.assertEqual(readme.count('https://drive.google.com/file/d/1u8OW0lUMhhxG1twcPHh2dPLS1x-La8N1/view?usp=sharing'), 2)
         self.assertIn('releases/download/v2.0.0/harness2_demo_60s.mp4', readme)
         self.assertIn('simulated behavior', readme)
-        for name in ['Blueprint_Backend.html', 'UI_UX_Frontend.html', 'AGENTS.md', 'START_HERE_PROMPTS.txt']:
+        for name in ['Blueprint_Backend.html', 'UI_UX_Frontend.html', 'AGENTS.md']:
             self.assertTrue((ROOT/name).is_file())
             self.assertIn(name, readme)
 
