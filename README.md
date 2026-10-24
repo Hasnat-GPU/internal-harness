@@ -1,5 +1,9 @@
 # Internal Harness v2.0 — Sovereign Continual Learning Layer for Harness²
 
+> **Built by [Hasnat](https://github.com/Hasnat-GPU) for the OpenAI Codex DevDay Community Hackathon: Berlin — October 24, 2026.**
+>
+> My hackathon project explores how AI agents can retain useful corrections in locally owned memory, with an interactive Flight Deck that makes the architecture understandable to everyone.
+
 ![Edge AI: Qwen3.5 INT8](https://img.shields.io/badge/Edge_AI-Qwen3.5_INT8-2563eb)
 ![Memory: Rank-8 Micro-LoRA (.safetensors)](https://img.shields.io/badge/Memory-Rank--8_Micro--LoRA_%28.safetensors%29-7c3aed)
 ![Security: 4-Layer Firewall](https://img.shields.io/badge/Security-4--Layer_Firewall-059669)
