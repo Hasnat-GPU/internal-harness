@@ -1,8 +1,8 @@
-# Internal Harness v2.0 — Sovereign Continual Learning Layer for Harness²
+# Internal Harness v2.0: Sovereign Continual Learning Layer for Harness²
 
-> **Built by [Hasnat](https://github.com/Hasnat-GPU) for the OpenAI Codex DevDay Community Hackathon: Berlin — October 24, 2026.**
+> **Built by [Hasnat](https://github.com/Hasnat-GPU) for the OpenAI Codex DevDay Community Hackathon: Berlin, October 24, 2026.**
 >
-> My hackathon project explores how AI agents can retain useful corrections in locally owned memory, with an interactive Flight Deck that makes the architecture understandable to everyone.
+> My hackathon project explores how AI agents can retain useful corrections in locally owned memory, with an interactive UX that makes the architecture understandable to everyone.
 
 ![Edge AI: Qwen3.5 INT8](https://img.shields.io/badge/Edge_AI-Qwen3.5_INT8-2563eb)
 ![Memory: Rank-8 Micro-LoRA (.safetensors)](https://img.shields.io/badge/Memory-Rank--8_Micro--LoRA_%28.safetensors%29-7c3aed)
@@ -94,32 +94,6 @@ Anti-poisoning also requires quarantining failures, learning only from verified 
 ## Get started
 
 **Explore the product:** open the [live Flight Deck](https://hasnat-gpu.github.io/internal-harness/UI_UX_Frontend.html), or clone the repository and open `UI_UX_Frontend.html` in a browser. No backend is required for the simulation.
-
-```bash
-git clone https://github.com/Hasnat-GPU/internal-harness.git
-cd internal-harness
-```
-
-**Continue engineering:** read `AGENTS.md`, then the blueprint. Implement one requested Task ID at a time and prove its verification criterion before moving on. The supported backend target is **Python 3.11+ on WSL2 Ubuntu 24.04, CPU only**. `requirements.txt` includes future-phase dependencies; the full model stack is not validated by this release.
-
-The existing T03 test suite is `tests/test_phase1.py`. It expects the local T03 scaffold: a generated private `.env`, initialized SQLite database, blueprint directories, and the pinned tokenizer cache. Those generated/private artifacts are intentionally excluded from Git. Run it in the configured WSL environment:
-
-```bash
-.venv/bin/python -m pytest tests/test_phase1.py
-```
-
-### Recreate the narrated demo
-
-Install FFmpeg with `ffmpeg` and `ffprobe` on `PATH`, then:
-
-```bash
-python -m pip install playwright edge-tts
-python -m playwright install chromium
-python scripts/make_demo_video.py
-python -m unittest discover -s tests -p test_demo_video.py -v
-```
-
-This generates `harness2_demo_60s.mp4`, five aligned narration segments, and a verification report under `artifacts/demo_video/`. Edge TTS requires internet access. Audio is generated with Andrew Neural at +5%, then fitted to the five timeline slots without changing pitch. The script uses the UI's actual **Version 81 → Restore This** button; this frontend has no snapshot dropdown.
 
 ## Repository hygiene
 
